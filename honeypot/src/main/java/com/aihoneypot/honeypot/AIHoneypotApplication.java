@@ -18,6 +18,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
     "com.aihoneypot.collector",
     "com.aihoneypot.analyzer",
     "com.aihoneypot.dashboard",
+    "com.aihoneypot.xdetector",
     "com.aihoneypot.honeypot"
 })
 @EntityScan(basePackages = "com.aihoneypot.analyzer.entity")

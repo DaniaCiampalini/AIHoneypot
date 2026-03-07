@@ -3,8 +3,24 @@
 ![Java](https://img.shields.io/badge/Java-17-orange)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.2-green)
 ![Maven](https://img.shields.io/badge/Maven-Multi--Module-blue)
+![License](https://img.shields.io/badge/License-MIT-blue)
 
 A sophisticated honeypot system for detecting and classifying AI agents, bots, and automated HTTP clients using behavioral fingerprinting and machine learning.
+
+---
+
+## 🌍 Documentation in Other Languages
+
+- 🇬🇧 [English](README.md) (Current)
+- 🇮🇹 [Italiano](README_IT.md)
+- 🇫🇷 [Français](README_FR.md)
+- 🇪🇸 [Español](README_ES.md)
+- 🇩🇪 [Deutsch](README_DE.md)
+- 🇨🇳 [简体中文](README_ZH.md)
+- 🇯🇵 [日本語](README_JA.md)
+- 🇷🇺 [Русский](README_RU.md)
+
+---
 
 ## 🎯 Features
 
@@ -13,6 +29,7 @@ A sophisticated honeypot system for detecting and classifying AI agents, bots, a
   - Rule-based detection for known patterns
   - Isolation Forest for anomaly detection
   - Ensemble methods combining multiple classifiers
+- **X (Twitter) Bot Detection**: Specialized module for detecting bots and AI agents on social media
 - **Canary Traps**: Decoy endpoints that no legitimate user should access
 - **Real-time Threat Logging**: Persists threat sessions to database
 - **REST API Dashboard**: Monitor and analyze detected threats
@@ -28,6 +45,7 @@ AIHoneypot/
 ├── collector/         # Signal collection layer (servlet filters)
 ├── analyzer/          # Threat classification engine
 ├── dashboard/         # REST API and statistics
+├── x-detector/        # X (Twitter) bot detection module
 └── honeypot/          # Main Spring Boot application + canary traps
 ```
 
@@ -39,6 +57,8 @@ honeypot (main)
 │   └── analyzer
 │       └── core
 ├── collector
+│   └── core
+├── x-detector
 │   └── core
 └── analyzer
     └── core
@@ -187,6 +207,98 @@ Uses statistical anomaly detection to identify unusual behavioral patterns.
 ### Ensemble Classifier
 
 Combines multiple classifiers for robust detection.
+
+## 🤖 X Bot Detector
+
+Specialized module for detecting bots and AI agents on X (Twitter) with advanced behavioral analysis.
+
+### Features
+
+- **5 Independent Analyzers**: Profile, Network, Temporal, Text, Behavior
+- **31 Behavioral Signals**: AI/LLM patterns, engagement metrics, temporal analysis
+- **Manual Input Mode**: Works without Twitter API key - just provide public profile data
+- **Explainable Predictions**: Each classification includes detailed explanation and triggered signals
+- **Configurable Weights**: Each analyzer has adjustable weight in final score
+
+### Analyzers Breakdown
+
+| Analyzer | Weight | Key Signals |
+|----------|--------|-------------|
+| **ProfileAnalyzer** | 20% | Account age, username patterns, AI keywords in bio, default image |
+| **NetworkAnalyzer** | 25% | Follower/following ratio, follow spam, engagement anomalies |
+| **TemporalAnalyzer** | 25% | Posting frequency, regular intervals (CV), burst posting |
+| **TextAnalyzer** | 30% | AI/LLM patterns, text repetition, automation clients, vocabulary |
+| **BehaviorAnalyzer** | 20% | Retweet ratio, no replies, API clients, language uniformity |
+
+### Classification Levels
+
+| Score Range | Classification | Action |
+|-------------|---------------|---------|
+| < 0.3 | **LIKELY_HUMAN** | ✅ Allow |
+| 0.3 - 0.6 | **UNCERTAIN** | ⚠️ Monitor |
+| 0.6 - 0.8 | **LIKELY_BOT** | 🔍 Review |
+| > 0.8 | **CONFIRMED_BOT** | 🚫 Block |
+
+### Example X Detector Request
+
+```json
+{
+  "username": "suspicious_bot",
+  "displayName": "AI Helper",
+  "bio": "As an AI, I am here to help you!",
+  "verified": false,
+  "accountCreatedDate": "2024-03-01T00:00:00Z",
+  "followersCount": 50,
+  "followingCount": 5000,
+  "tweetCount": 10000,
+  "defaultProfileImage": true,
+  "recentTweetTexts": [
+    "As an AI assistant, I can help with your needs.",
+    "Here are 5 ways to improve productivity...",
+    "It is important to note that consistency is key."
+  ],
+  "tweetSources": ["Buffer", "Buffer", "Buffer"]
+}
+```
+
+### Example X Detector Response
+
+```json
+{
+  "username": "suspicious_bot",
+  "score": 0.87,
+  "classification": "CONFIRMED_BOT",
+  "confidence": 0.92,
+  "explanation": "CONFIRMED BOT: Account @suspicious_bot has a bot probability of 87.0%. Red flags: TextAnalyzer detected high bot probability (0.85), ProfileAnalyzer detected high bot probability (0.72), NetworkAnalyzer detected high bot probability (0.68).",
+  "categoryScores": {
+    "ProfileAnalyzer": 0.72,
+    "NetworkAnalyzer": 0.68,
+    "TemporalAnalyzer": 0.55,
+    "TextAnalyzer": 0.85,
+    "BehaviorAnalyzer": 0.60
+  },
+  "redFlags": [
+    "TextAnalyzer detected high bot probability (0.85)",
+    "ProfileAnalyzer detected high bot probability (0.72)",
+    "NetworkAnalyzer detected high bot probability (0.68)"
+  ],
+  "recommendation": "BLOCK - High confidence bot detection. Recommend blocking or flagging."
+}
+```
+
+### Detected AI/LLM Patterns
+
+The Text Analyzer detects common AI-generated content patterns:
+
+- "As an AI..." / "I'm an AI..."
+- "I don't have personal..." / "I cannot..."
+- "My programming..." / "My training data..."
+- "I'm here to help..." / "Happy to assist..."
+- "Here are X ways/tips/reasons..."
+- "It's important to note..." / "It's worth noting..."
+- "In conclusion..." / "To summarize..."
+
+For more details, see [x-detector/README.md](x-detector/README.md)
 
 ## 📝 Example Detection
 

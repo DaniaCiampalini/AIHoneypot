@@ -26,10 +26,11 @@
          CHILD MODULES
          ================================================================ -->
     <modules>
-        <module>analyzer</module>
-        <module>collector</module>
         <module>core</module>
+        <module>collector</module>
+        <module>analyzer</module>
         <module>dashboard</module>
+        <module>x-detector</module>
         <module>honeypot</module>
     </modules>
 
@@ -89,6 +90,11 @@
             <dependency>
                 <groupId>com.aihoneypot</groupId>
                 <artifactId>dashboard</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.aihoneypot</groupId>
+                <artifactId>x-detector</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

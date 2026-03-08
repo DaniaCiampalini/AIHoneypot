@@ -24,16 +24,52 @@ A sophisticated honeypot system for detecting and classifying AI agents, bots, a
 
 ## 🎯 Features
 
-- **Behavioral Fingerprinting**: Analyzes HTTP request patterns to distinguish humans from bots
-- **Multi-Layer Classification**: 
+- **🎨 Interactive GUI Dashboard**: Beautiful JavaFX desktop application with real-time monitoring
+  - Live threat statistics with auto-refresh
+  - Interactive charts (Pie & Bar charts) for data visualization
+  - Recent threats table with detailed information
+  - Top attacking IPs analysis
+  - iOS-inspired modern theme with smooth animations
+  
+- **🚗 Traffic Simulator**: Generates realistic honeypot traffic for testing
+  - Automatic traffic generation every 5-30 seconds
+  - Realistic attack patterns (SQL injection, XSS, bot scans)
+  - Burst traffic waves for stress testing
+  - Multiple client types (humans, bots, AI agents, scanners)
+
+- **🌱 Database Seeding**: Pre-populates database with historical data
+  - 255+ initial threat sessions
+  - 7 days of historical patterns
+  - Realistic attack distributions by severity
+
+- **🔍 Behavioral Fingerprinting**: Analyzes HTTP request patterns to distinguish humans from bots
+
+- **🧠 Multi-Layer Classification**: 
   - Rule-based detection for known patterns
   - Isolation Forest for anomaly detection
   - Ensemble methods combining multiple classifiers
-- **X (Twitter) Bot Detection**: Specialized module for detecting bots and AI agents on social media
-- **Canary Traps**: Decoy endpoints that no legitimate user should access
-- **Real-time Threat Logging**: Persists threat sessions to database
-- **REST API Dashboard**: Monitor and analyze detected threats
-- **Session Tracking**: Correlates multiple requests from the same session
+
+- **🐦 X (Twitter) Bot Detection**: Specialized module for detecting bots and AI agents on social media
+  - Profile analysis (age, username patterns, bio detection)
+  - Network analysis (follower/following ratios)
+  - Temporal patterns (posting frequency)
+  - AI-generated text detection
+
+- **🕸️ Canary Traps**: Decoy endpoints that no legitimate user should access
+  - `/admin`, `/wp-admin`, `/.env`, `/backup`, `/.git` and more
+  - Automatic CRITICAL severity on access
+
+- **💾 Real-time Threat Logging**: Persists threat sessions to H2/PostgreSQL database
+
+- **📊 REST API Dashboard**: Monitor and analyze detected threats via HTTP endpoints
+
+- **🔄 Session Tracking**: Correlates multiple requests from the same session
+
+- **🔒 Security Analysis**: Website security scanner with 7-level analysis
+  - SSL/TLS validation
+  - Security headers check
+  - Port scanning
+  - Vulnerability detection
 
 ## 🏗️ Architecture
 
@@ -45,9 +81,19 @@ AIHoneypot/
 ├── collector/         # Signal collection layer (servlet filters)
 ├── analyzer/          # Threat classification engine
 ├── dashboard/         # REST API and statistics
+├── gui/               # JavaFX Desktop Dashboard (NEW!)
 ├── x-detector/        # X (Twitter) bot detection module
-└── honeypot/          # Main Spring Boot application + canary traps
+└── honeypot/          # Main Spring Boot application + canary traps + traffic simulator
 ```
+
+### Technology Stack
+
+- **Backend**: Spring Boot 3.2.2, Java 17
+- **Frontend**: JavaFX 21 (Desktop GUI)
+- **Database**: H2 (in-memory) / PostgreSQL (production)
+- **ML/AI**: Custom isolation forest, rule-based classification
+- **Charts**: JavaFX Charts API
+- **Build**: Maven Multi-Module
 
 ### Module Dependencies
 
@@ -72,13 +118,26 @@ honeypot (main)
 - Maven 3.8+
 - (Optional) PostgreSQL for production
 
-### Build
+### Option 1: Complete Startup (Backend + GUI) - RECOMMENDED
+
+Start everything with a single command:
 
 ```bash
-mvn clean install
+./start-complete.sh
 ```
 
-### Run
+This script will:
+1. ✅ Check if backend is running
+2. ✅ Build project if needed
+3. ✅ Start backend in background
+4. ✅ Wait for backend to be ready
+5. ✅ Launch GUI Dashboard
+
+**Note**: The backend runs in background. Logs are in `/tmp/aihoneypot-backend.log`
+
+### Option 2: Manual Startup
+
+#### Start Backend
 
 ```bash
 cd honeypot
@@ -87,11 +146,46 @@ mvn spring-boot:run
 
 The application will start on `http://localhost:8080`
 
-### Access Dashboard
+#### Start GUI (in another terminal)
 
-- **Swagger UI**: http://localhost:8080/swagger-ui.html
+```bash
+cd gui
+mvn javafx:run
+```
+
+Or use the GUI-only script:
+
+```bash
+./start-gui-only.sh
+```
+
+### Option 3: GUI Only (Backend Already Running)
+
+If the backend is already running:
+
+```bash
+./start-gui-only.sh
+```
+
+This checks if backend is up and starts the GUI.
+
+### Stop Backend
+
+```bash
+# Find and kill backend process
+pkill -f 'spring-boot:run'
+
+# Or find PID and kill
+lsof -ti:8080 | xargs kill -9
+```
+
+### Access Points
+
+- **GUI Dashboard**: Automatically opens when running `./start-complete.sh` or `./start-gui-only.sh`
+- **API Swagger**: http://localhost:8080/swagger-ui.html
 - **H2 Console**: http://localhost:8080/h2-console
 - **API Docs**: http://localhost:8080/api-docs
+- **Health Check**: http://localhost:8080/actuator/health
 
 ## 📊 Core Domain Classes
 

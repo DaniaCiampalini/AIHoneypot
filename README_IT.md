@@ -24,16 +24,52 @@ Un sofisticato sistema honeypot per rilevare e classificare agenti AI, bot e cli
 
 ## 🎯 Caratteristiche
 
-- **Fingerprinting Comportamentale**: Analizza i pattern delle richieste HTTP per distinguere umani da bot
-- **Classificazione Multi-Livello**: 
+- **🎨 Dashboard GUI Interattiva**: Bellissima applicazione desktop JavaFX con monitoraggio in tempo reale
+  - Statistiche minacce live con auto-refresh
+  - Grafici interattivi (Torta e Barre) per visualizzazione dati
+  - Tabella minacce recenti con informazioni dettagliate
+  - Analisi top IP attaccanti
+  - Tema moderno ispirato a iOS con animazioni fluide
+  
+- **🚗 Simulatore di Traffico**: Genera traffico honeypot realistico per test
+  - Generazione automatica traffico ogni 5-30 secondi
+  - Pattern di attacco realistici (SQL injection, XSS, bot scan)
+  - Ondate di traffico burst per stress testing
+  - Tipi client multipli (umani, bot, agenti AI, scanner)
+
+- **🌱 Popolamento Database**: Pre-popola il database con dati storici
+  - 255+ sessioni minaccia iniziali
+  - 7 giorni di pattern storici
+  - Distribuzioni attacchi realistiche per severità
+
+- **🔍 Fingerprinting Comportamentale**: Analizza i pattern delle richieste HTTP per distinguere umani da bot
+
+- **🧠 Classificazione Multi-Livello**: 
   - Rilevamento basato su regole per pattern noti
   - Isolation Forest per rilevamento anomalie
   - Metodi ensemble che combinano più classificatori
-- **Rilevamento Bot su X (Twitter)**: Modulo specializzato per rilevare bot e agenti AI sui social media
-- **Trappole Canary**: Endpoint esca che nessun utente legittimo dovrebbe accedere
-- **Logging Minacce in Tempo Reale**: Persiste le sessioni di minaccia nel database
-- **Dashboard API REST**: Monitora e analizza le minacce rilevate
-- **Tracciamento Sessioni**: Correla multiple richieste dalla stessa sessione
+
+- **🐦 Rilevamento Bot su X (Twitter)**: Modulo specializzato per rilevare bot e agenti AI sui social media
+  - Analisi profilo (età, pattern username, rilevamento bio)
+  - Analisi network (rapporti follower/following)
+  - Pattern temporali (frequenza pubblicazione)
+  - Rilevamento testo generato da AI
+
+- **🕸️ Trappole Canary**: Endpoint esca che nessun utente legittimo dovrebbe accedere
+  - `/admin`, `/wp-admin`, `/.env`, `/backup`, `/.git` e altri
+  - Severità CRITICAL automatica all'accesso
+
+- **💾 Logging Minacce in Tempo Reale**: Persiste le sessioni di minaccia su database H2/PostgreSQL
+
+- **📊 Dashboard API REST**: Monitora e analizza le minacce rilevate tramite endpoint HTTP
+
+- **🔄 Tracciamento Sessioni**: Correla multiple richieste dalla stessa sessione
+
+- **🔒 Analisi Sicurezza**: Scanner sicurezza siti web con analisi a 7 livelli
+  - Validazione SSL/TLS
+  - Controllo header sicurezza
+  - Port scanning
+  - Rilevamento vulnerabilità
 
 ## 🏗️ Architettura
 
@@ -45,9 +81,19 @@ AIHoneypot/
 ├── collector/         # Layer raccolta segnali (filtri servlet)
 ├── analyzer/          # Motore classificazione minacce
 ├── dashboard/         # API REST e statistiche
+├── gui/               # Dashboard Desktop JavaFX (NUOVO!)
 ├── x-detector/        # Modulo rilevamento bot X (Twitter)
-└── honeypot/          # Applicazione Spring Boot principale + trappole canary
+└── honeypot/          # Applicazione Spring Boot principale + trappole canary + simulatore traffico
 ```
+
+### Stack Tecnologico
+
+- **Backend**: Spring Boot 3.2.2, Java 17
+- **Frontend**: JavaFX 21 (GUI Desktop)
+- **Database**: H2 (in-memory) / PostgreSQL (produzione)
+- **ML/AI**: Isolation forest personalizzato, classificazione basata su regole
+- **Grafici**: JavaFX Charts API
+- **Build**: Maven Multi-Module
 
 ### Dipendenze Moduli
 
@@ -72,13 +118,26 @@ honeypot (principale)
 - Maven 3.8+
 - (Opzionale) PostgreSQL per produzione
 
-### Build
+### Opzione 1: Avvio Completo (Backend + GUI) - RACCOMANDATO
+
+Avvia tutto con un singolo comando:
 
 ```bash
-mvn clean install
+./start-complete.sh
 ```
 
-### Esecuzione
+Questo script:
+1. ✅ Controlla se il backend è in esecuzione
+2. ✅ Compila il progetto se necessario
+3. ✅ Avvia il backend in background
+4. ✅ Aspetta che il backend sia pronto
+5. ✅ Lancia la Dashboard GUI
+
+**Nota**: Il backend viene eseguito in background. I log sono in `/tmp/aihoneypot-backend.log`
+
+### Opzione 2: Avvio Manuale
+
+#### Avvia Backend
 
 ```bash
 cd honeypot
@@ -87,11 +146,46 @@ mvn spring-boot:run
 
 L'applicazione si avvierà su `http://localhost:8080`
 
-### Accesso Dashboard
+#### Avvia GUI (in un altro terminale)
 
-- **Swagger UI**: http://localhost:8080/swagger-ui.html
+```bash
+cd gui
+mvn javafx:run
+```
+
+Oppure usa lo script solo-GUI:
+
+```bash
+./start-gui-only.sh
+```
+
+### Opzione 3: Solo GUI (Backend già in esecuzione)
+
+Se il backend è già attivo:
+
+```bash
+./start-gui-only.sh
+```
+
+Questo controlla se il backend è attivo e avvia la GUI.
+
+### Ferma Backend
+
+```bash
+# Trova e termina il processo backend
+pkill -f 'spring-boot:run'
+
+# Oppure trova il PID e termina
+lsof -ti:8080 | xargs kill -9
+```
+
+### Punti di Accesso
+
+- **Dashboard GUI**: Si apre automaticamente quando esegui `./start-complete.sh` o `./start-gui-only.sh`
+- **Swagger API**: http://localhost:8080/swagger-ui.html
 - **Console H2**: http://localhost:8080/h2-console
 - **Documentazione API**: http://localhost:8080/api-docs
+- **Health Check**: http://localhost:8080/actuator/health
 
 ## 📊 Classi Domain Core
 

@@ -1,7 +1,7 @@
 package com.aihoneypot.honeypot.seed;
 
-import com.aihoneypot.analyzer.model.ThreatSession;
-import com.aihoneypot.analyzer.service.ThreatSessionRepository;
+import com.aihoneypot.analyzer.entity.ThreatSession;
+import com.aihoneypot.analyzer.repository.ThreatSessionRepository;
 import com.aihoneypot.core.model.ClientType;
 import com.aihoneypot.core.model.Severity;
 import lombok.RequiredArgsConstructor;
@@ -102,10 +102,10 @@ public class DatabaseSeeder implements CommandLineRunner {
 
         if (random < 0.5) {
             // 50% legitimate/low severity
-            return createThreat(timestamp, ClientType.HUMAN_BROWSER, Severity.INFO, "192.168.1." + randomInt(1, 254));
+            return createThreat(timestamp, ClientType.HUMAN_BROWSER, Severity.LOW, "192.168.1." + randomInt(1, 254));
         } else if (random < 0.7) {
             // 20% bots
-            return createThreat(timestamp, ClientType.BOT_CRAWLER, Severity.LOW, "198.51.100." + randomInt(1, 254));
+            return createThreat(timestamp, ClientType.SEARCH_ENGINE, Severity.LOW, "198.51.100." + randomInt(1, 254));
         } else if (random < 0.85) {
             // 15% AI agents
             return createThreat(timestamp, ClientType.AI_AGENT, Severity.MEDIUM, "203.0.113." + randomInt(1, 254));
@@ -114,7 +114,7 @@ public class DatabaseSeeder implements CommandLineRunner {
             return createThreat(timestamp, ClientType.BOT_SCRAPER, Severity.HIGH, "192.0.2." + randomInt(1, 254));
         } else {
             // 5% critical threats
-            return createThreat(timestamp, ClientType.MALICIOUS_SCANNER, Severity.CRITICAL, "10.0.0." + randomInt(1, 254));
+            return createThreat(timestamp, ClientType.SECURITY_SCANNER, Severity.CRITICAL, "10.0.0." + randomInt(1, 254));
         }
     }
 
@@ -127,7 +127,7 @@ public class DatabaseSeeder implements CommandLineRunner {
 
             ThreatSession session = createThreat(
                 timestamp,
-                ClientType.MALICIOUS_SCANNER,
+                ClientType.SECURITY_SCANNER,
                 Severity.CRITICAL,
                 attackerIP
             );
@@ -166,9 +166,9 @@ public class DatabaseSeeder implements CommandLineRunner {
         session.setSeverity(severity);
         session.setConfidence(0.7 + (Math.random() * 0.3)); // 0.7 - 1.0
         session.setExplanation(generateExplanation(type, severity));
-        session.setFirstSeen(timestamp);
-        session.setLastSeen(timestamp);
+        session.setTimestamp(timestamp);
         session.setRequestCount(randomInt(1, 5));
+        session.setIsThreat(severity == Severity.HIGH || severity == Severity.CRITICAL);
 
         return session;
     }
@@ -177,13 +177,13 @@ public class DatabaseSeeder implements CommandLineRunner {
         switch (type) {
             case HUMAN_BROWSER:
                 return "Legitimate browser traffic detected";
-            case BOT_CRAWLER:
+            case SEARCH_ENGINE:
                 return "Search engine bot detected (Googlebot/Bingbot)";
             case AI_AGENT:
                 return "AI agent detected - GPT/Claude Bot";
             case BOT_SCRAPER:
                 return "Automated scraping bot detected";
-            case MALICIOUS_SCANNER:
+            case SECURITY_SCANNER:
                 if (severity == Severity.CRITICAL) {
                     return "Critical threat: SQL injection or XSS attempt";
                 }

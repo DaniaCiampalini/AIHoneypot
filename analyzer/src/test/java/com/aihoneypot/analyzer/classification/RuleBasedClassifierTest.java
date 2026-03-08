@@ -49,7 +49,7 @@ class RuleBasedClassifierTest {
 
         // Then
         assertNotNull(result);
-        assertEquals(ClientType.BOT_CRAWLER, result.getClientType());
+        assertEquals(ClientType.SEARCH_ENGINE, result.getClientType());
         assertTrue(result.getConfidence() > 0.7, "Confidence should be high for obvious bot");
     }
 
@@ -80,9 +80,9 @@ class RuleBasedClassifierTest {
     @CsvSource({
         "curl/7.68.0, BOT_SCRAPER",
         "Python-urllib/3.8, BOT_SCRAPER",
-        "Googlebot/2.1, BOT_CRAWLER",
+        "Googlebot/2.1, SEARCH_ENGINE",
         "GPT-Bot/1.0, AI_AGENT",
-        "sqlmap/1.5, MALICIOUS_SCANNER"
+        "sqlmap/1.5, SECURITY_SCANNER"
     })
     void testBotPatternDetection(String userAgent, String expectedType) {
         // Given
@@ -256,7 +256,7 @@ class RuleBasedClassifierTest {
         ClassificationResult result = classifier.classify(signals);
 
         // Then
-        assertEquals(ClientType.MALICIOUS_SCANNER, result.getClientType());
+        assertEquals(ClientType.SECURITY_SCANNER, result.getClientType());
         assertEquals(Severity.HIGH, result.getSeverity());
     }
 

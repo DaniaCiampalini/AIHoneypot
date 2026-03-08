@@ -4,8 +4,8 @@ import com.aihoneypot.core.model.ClientType;
 import com.aihoneypot.core.model.RawRequestSignals;
 import com.aihoneypot.core.model.Severity;
 import com.aihoneypot.core.interfaces.ThreatClassifier;
-import com.aihoneypot.analyzer.service.ThreatSessionRepository;
-import com.aihoneypot.analyzer.model.ThreatSession;
+import com.aihoneypot.analyzer.repository.ThreatSessionRepository;
+import com.aihoneypot.analyzer.entity.ThreatSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -173,7 +173,7 @@ public class TrafficSimulator {
                 .headers(createHeaders("text/html,application/xhtml+xml", "en-US,en;q=0.9"))
                 .build();
 
-        processAndSave(signals, ClientType.HUMAN_BROWSER, Severity.INFO);
+        processAndSave(signals, ClientType.HUMAN_BROWSER, Severity.LOW);
     }
 
     private void generateBotRequest() {
@@ -187,7 +187,7 @@ public class TrafficSimulator {
                 .headers(createHeaders("*/*", "en-US"))
                 .build();
 
-        processAndSave(signals, ClientType.BOT_CRAWLER, Severity.LOW);
+        processAndSave(signals, ClientType.SEARCH_ENGINE, Severity.LOW);
     }
 
     private void generateAIRequest() {
@@ -215,7 +215,7 @@ public class TrafficSimulator {
                 .headers(createHeaders("*/*", "en"))
                 .build();
 
-        processAndSave(signals, ClientType.MALICIOUS_SCANNER, Severity.HIGH);
+        processAndSave(signals, ClientType.SECURITY_SCANNER, Severity.HIGH);
     }
 
     private void simulateCanaryTrapAccess() {
@@ -233,7 +233,7 @@ public class TrafficSimulator {
                 .build();
 
         log.warn("🚨 Canary trap accessed: {} by {}", canaryPath, maliciousIP);
-        processAndSave(signals, ClientType.MALICIOUS_SCANNER, Severity.CRITICAL);
+        processAndSave(signals, ClientType.SECURITY_SCANNER, Severity.CRITICAL);
     }
 
     private void simulateBotScan() {
@@ -285,7 +285,7 @@ public class TrafficSimulator {
                 .build();
 
         log.error("💉 SQL injection attempt detected!");
-        processAndSave(signals, ClientType.MALICIOUS_SCANNER, Severity.CRITICAL);
+        processAndSave(signals, ClientType.SECURITY_SCANNER, Severity.CRITICAL);
     }
 
     private void processAndSave(RawRequestSignals signals, ClientType type, Severity severity) {
@@ -301,9 +301,11 @@ public class TrafficSimulator {
             session.setSeverity(severity);
             session.setConfidence(result.getConfidence());
             session.setExplanation(result.getExplanation());
-            session.setFirstSeen(signals.getTimestamp());
-            session.setLastSeen(signals.getTimestamp());
+            session.setTimestamp(signals.getTimestamp());
             session.setRequestCount(1);
+            session.setIsThreat(severity == Severity.HIGH || severity == Severity.CRITICAL);
+            session.setUserAgent(signals.getUserAgent());
+            session.setFirstUri(signals.getUri());
 
             // Save to database
             threatRepository.save(session);

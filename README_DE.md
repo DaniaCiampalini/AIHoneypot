@@ -24,16 +24,52 @@ Ein ausgeklügeltes Honeypot-System zur Erkennung und Klassifizierung von KI-Age
 
 ## 🎯 Funktionen
 
-- **Verhaltensfingerprinting**: Analysiert HTTP-Anfragemuster, um Menschen von Bots zu unterscheiden
-- **Mehrschichtige Klassifizierung**: 
+- **🎨 Interaktives GUI-Dashboard**: Schöne JavaFX-Desktop-Anwendung mit Echtzeit-Überwachung
+  - Live-Bedrohungsstatistiken mit automatischer Aktualisierung
+  - Interaktive Diagramme (Kreis- und Balkendiagramme) zur Datenvisualisierung
+  - Tabelle der aktuellen Bedrohungen mit detaillierten Informationen
+  - Analyse der wichtigsten angreifenden IPs
+  - Modernes iOS-inspiriertes Design mit flüssigen Animationen
+  
+- **🚗 Traffic-Simulator**: Generiert realistischen Honeypot-Traffic für Tests
+  - Automatische Traffic-Generierung alle 5-30 Sekunden
+  - Realistische Angriffsmuster (SQL-Injection, XSS, Bot-Scans)
+  - Burst-Traffic-Wellen für Stresstests
+  - Mehrere Client-Typen (Menschen, Bots, KI-Agenten, Scanner)
+
+- **🌱 Datenbank-Seeding**: Füllt die Datenbank mit historischen Daten vor
+  - 255+ initiale Bedrohungssitzungen
+  - 7 Tage historische Muster
+  - Realistische Angriffsverteilungen nach Schweregrad
+
+- **🔍 Verhaltens-Fingerprinting**: Analysiert HTTP-Anfragemuster, um Menschen von Bots zu unterscheiden
+
+- **🧠 Mehrstufige Klassifizierung**: 
   - Regelbasierte Erkennung für bekannte Muster
   - Isolation Forest für Anomalieerkennung
-  - Ensemble-Methoden, die mehrere Klassifizierer kombinieren
-- **X (Twitter) Bot-Erkennung**: Spezialisiertes Modul zur Erkennung von Bots und KI-Agenten in sozialen Medien
-- **Canary-Fallen**: Köder-Endpunkte, auf die kein legitimer Benutzer zugreifen sollte
-- **Echtzeit-Bedrohungsprotokollierung**: Speichert Bedrohungssitzungen in der Datenbank
-- **REST-API-Dashboard**: Überwachen und analysieren Sie erkannte Bedrohungen
-- **Sitzungsverfolgung**: Korreliert mehrere Anfragen derselben Sitzung
+  - Ensemble-Methoden, die mehrere Klassifikatoren kombinieren
+
+- **🐦 X (Twitter) Bot-Erkennung**: Spezialisiertes Modul zur Erkennung von Bots und KI-Agenten in sozialen Medien
+  - Profilanalyse (Alter, Benutzernamen-Muster, Bio-Erkennung)
+  - Netzwerkanalyse (Follower/Following-Verhältnisse)
+  - Zeitliche Muster (Veröffentlichungsfrequenz)
+  - Erkennung von KI-generiertem Text
+
+- **🕸️ Canary-Fallen**: Köder-Endpunkte, auf die kein legitimer Benutzer zugreifen sollte
+  - `/admin`, `/wp-admin`, `/.env`, `/backup`, `/.git` und mehr
+  - Automatischer KRITISCHER Schweregrad beim Zugriff
+
+- **💾 Echtzeit-Bedrohungsprotokollierung**: Speichert Bedrohungssitzungen in H2/PostgreSQL-Datenbank
+
+- **📊 REST-API-Dashboard**: Überwacht und analysiert erkannte Bedrohungen über HTTP-Endpunkte
+
+- **🔄 Sitzungsverfolgung**: Korreliert mehrere Anfragen derselben Sitzung
+
+- **🔒 Sicherheitsanalyse**: Website-Sicherheitsscanner mit 7-stufiger Analyse
+  - SSL/TLS-Validierung
+  - Überprüfung von Sicherheits-Headern
+  - Port-Scanning
+  - Schwachstellenerkennung
 
 ## 🏗️ Architektur
 

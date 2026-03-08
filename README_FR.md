@@ -24,16 +24,52 @@ Un système honeypot sophistiqué pour détecter et classifier les agents IA, le
 
 ## 🎯 Fonctionnalités
 
-- **Empreinte Comportementale**: Analyse les modèles de requêtes HTTP pour distinguer les humains des bots
-- **Classification Multi-Couches**: 
+- **🎨 Tableau de Bord GUI Interactif**: Belle application de bureau JavaFX avec surveillance en temps réel
+  - Statistiques de menaces en direct avec actualisation automatique
+  - Graphiques interactifs (camembert et barres) pour la visualisation des données
+  - Table des menaces récentes avec informations détaillées
+  - Analyse des IP attaquantes principales
+  - Thème moderne inspiré d'iOS avec animations fluides
+  
+- **🚗 Simulateur de Trafic**: Génère un trafic honeypot réaliste pour les tests
+  - Génération automatique de trafic toutes les 5-30 secondes
+  - Modèles d'attaque réalistes (injection SQL, XSS, scans de bots)
+  - Vagues de trafic en rafale pour les tests de charge
+  - Plusieurs types de clients (humains, bots, agents IA, scanners)
+
+- **🌱 Peuplement de Base de Données**: Pré-remplit la base de données avec des données historiques
+  - 255+ sessions de menaces initiales
+  - 7 jours de modèles historiques
+  - Distributions d'attaques réalistes par gravité
+
+- **🔍 Empreinte Comportementale**: Analyse les modèles de requêtes HTTP pour distinguer les humains des bots
+
+- **🧠 Classification Multi-Niveaux**: 
   - Détection basée sur des règles pour les modèles connus
-  - Forêt d'Isolation pour la détection d'anomalies
+  - Isolation Forest pour la détection d'anomalies
   - Méthodes d'ensemble combinant plusieurs classificateurs
-- **Détection de Bots X (Twitter)**: Module spécialisé pour détecter les bots et agents IA sur les réseaux sociaux
-- **Pièges Canari**: Points de terminaison leurres qu'aucun utilisateur légitime ne devrait accéder
-- **Journalisation des Menaces en Temps Réel**: Persiste les sessions de menaces dans la base de données
-- **Tableau de Bord API REST**: Surveiller et analyser les menaces détectées
-- **Suivi des Sessions**: Corrèle plusieurs requêtes de la même session
+
+- **🐦 Détection de Bots X (Twitter)**: Module spécialisé pour détecter les bots et agents IA sur les réseaux sociaux
+  - Analyse de profil (âge, modèles de nom d'utilisateur, détection de bio)
+  - Analyse réseau (ratios follower/following)
+  - Modèles temporels (fréquence de publication)
+  - Détection de texte généré par IA
+
+- **🕸️ Pièges Canary**: Points d'accès leurres qu'aucun utilisateur légitime ne devrait accéder
+  - `/admin`, `/wp-admin`, `/.env`, `/backup`, `/.git` et plus
+  - Gravité CRITIQUE automatique lors de l'accès
+
+- **💾 Journalisation des Menaces en Temps Réel**: Persiste les sessions de menaces dans une base de données H2/PostgreSQL
+
+- **📊 Tableau de Bord API REST**: Surveille et analyse les menaces détectées via des points de terminaison HTTP
+
+- **🔄 Suivi de Session**: Corrèle plusieurs requêtes de la même session
+
+- **🔒 Analyse de Sécurité**: Scanner de sécurité de sites Web avec analyse à 7 niveaux
+  - Validation SSL/TLS
+  - Vérification des en-têtes de sécurité
+  - Scan de ports
+  - Détection de vulnérabilités
 
 ## 🏗️ Architecture
 

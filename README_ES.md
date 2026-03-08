@@ -24,16 +24,52 @@ Un sofisticado sistema honeypot para detectar y clasificar agentes IA, bots y cl
 
 ## 🎯 Características
 
-- **Huella Digital Comportamental**: Analiza patrones de solicitudes HTTP para distinguir humanos de bots
-- **Clasificación Multi-Capa**: 
+- **🎨 Panel de Control GUI Interactivo**: Hermosa aplicación de escritorio JavaFX con monitoreo en tiempo real
+  - Estadísticas de amenazas en vivo con actualización automática
+  - Gráficos interactivos (circular y de barras) para visualización de datos
+  - Tabla de amenazas recientes con información detallada
+  - Análisis de las IP atacantes principales
+  - Tema moderno inspirado en iOS con animaciones suaves
+  
+- **🚗 Simulador de Tráfico**: Genera tráfico honeypot realista para pruebas
+  - Generación automática de tráfico cada 5-30 segundos
+  - Patrones de ataque realistas (inyección SQL, XSS, escaneos de bots)
+  - Ráfagas de tráfico para pruebas de estrés
+  - Múltiples tipos de clientes (humanos, bots, agentes IA, escáneres)
+
+- **🌱 Poblamiento de Base de Datos**: Pre-puebla la base de datos con datos históricos
+  - 255+ sesiones de amenaza iniciales
+  - 7 días de patrones históricos
+  - Distribuciones de ataques realistas por severidad
+
+- **🔍 Huella Digital Conductual**: Analiza patrones de solicitudes HTTP para distinguir humanos de bots
+
+- **🧠 Clasificación Multi-Nivel**: 
   - Detección basada en reglas para patrones conocidos
-  - Bosque de Aislamiento para detección de anomalías
+  - Isolation Forest para detección de anomalías
   - Métodos de conjunto que combinan múltiples clasificadores
-- **Detección de Bots en X (Twitter)**: Módulo especializado para detectar bots y agentes IA en redes sociales
-- **Trampas Canarias**: Endpoints señuelo que ningún usuario legítimo debería acceder
-- **Registro de Amenazas en Tiempo Real**: Persiste sesiones de amenazas en la base de datos
-- **Panel de Control API REST**: Monitorear y analizar amenazas detectadas
-- **Seguimiento de Sesiones**: Correlaciona múltiples solicitudes de la misma sesión
+
+- **🐦 Detección de Bots de X (Twitter)**: Módulo especializado para detectar bots y agentes IA en redes sociales
+  - Análisis de perfil (edad, patrones de nombre de usuario, detección de bio)
+  - Análisis de red (ratios seguidor/siguiendo)
+  - Patrones temporales (frecuencia de publicación)
+  - Detección de texto generado por IA
+
+- **🕸️ Trampas Canary**: Endpoints señuelo a los que ningún usuario legítimo debería acceder
+  - `/admin`, `/wp-admin`, `/.env`, `/backup`, `/.git` y más
+  - Severidad CRÍTICA automática al acceder
+
+- **💾 Registro de Amenazas en Tiempo Real**: Persiste sesiones de amenazas en base de datos H2/PostgreSQL
+
+- **📊 Panel de Control API REST**: Monitorea y analiza amenazas detectadas a través de endpoints HTTP
+
+- **🔄 Seguimiento de Sesiones**: Correlaciona múltiples solicitudes de la misma sesión
+
+- **🔒 Análisis de Seguridad**: Escáner de seguridad de sitios web con análisis de 7 niveles
+  - Validación SSL/TLS
+  - Verificación de encabezados de seguridad
+  - Escaneo de puertos
+  - Detección de vulnerabilidades
 
 ## 🏗️ Arquitectura
 

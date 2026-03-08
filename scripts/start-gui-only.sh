@@ -3,6 +3,11 @@
 # Script per avviare SOLO la GUI Dashboard
 # Usa questo se il backend è già in esecuzione
 
+# Resolve project root relative to script location
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+cd "$PROJECT_ROOT"
+
 echo "🎨 AIHoneypot - GUI Dashboard Launcher"
 echo "========================================"
 echo ""
@@ -26,7 +31,7 @@ else
     echo "   mvn spring-boot:run"
     echo ""
     echo "Or use the complete startup script:"
-    echo "   ./start-complete.sh"
+    echo "   $PROJECT_ROOT/scripts/start-complete.sh"
     echo ""
     read -p "Do you want to start the backend now? (y/n) " -n 1 -r
     echo ""

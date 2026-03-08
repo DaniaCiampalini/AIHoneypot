@@ -2,6 +2,11 @@
 
 # Script per avviare la GUI Dashboard di AIHoneypot
 
+# Resolve project root relative to script location
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+cd "$PROJECT_ROOT"
+
 echo "🛡️  AIHoneypot GUI Dashboard Launcher"
 echo "======================================"
 echo ""
@@ -26,7 +31,7 @@ echo "🚀 Starting JavaFX GUI..."
 echo ""
 
 # Navigate to GUI directory
-cd "$(dirname "$0")/gui"
+cd "$PROJECT_ROOT/gui"
 
 # Run JavaFX application
 mvn javafx:run

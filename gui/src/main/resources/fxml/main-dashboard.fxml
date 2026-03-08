@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.aihoneypot.gui.controller.MainDashboardController"
+            styleClass="root">
+
+    <!-- Top Bar -->
+    <top>
+        <VBox styleClass="top-bar">
+            <HBox alignment="CENTER_LEFT" spacing="20" style="-fx-padding: 15;">
+                <Label text="🛡️ AIHoneypot Dashboard" styleClass="title">
+                    <font>
+                        <Font name="System Bold" size="24.0"/>
+                    </font>
+                </Label>
+
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <Label fx:id="statusLabel" text="Checking connection..." styleClass="status-label"/>
+
+                <Button fx:id="refreshButton" text="🔄 Refresh" styleClass="button-primary"/>
+
+                <CheckBox fx:id="autoRefreshCheckBox" text="Auto-refresh" selected="true"/>
+
+                <ComboBox fx:id="refreshIntervalComboBox" promptText="Interval (s)" prefWidth="100"/>
+
+                <Button text="⚙️ Settings" onAction="#handleSettings" styleClass="button"/>
+
+                <ProgressIndicator fx:id="loadingIndicator" visible="false" prefHeight="25" prefWidth="25"/>
+            </HBox>
+
+            <HBox alignment="CENTER_LEFT" spacing="10" style="-fx-padding: 5 15 15 15;">
+                <Label fx:id="lastUpdateLabel" text="Last update: --:--:--" styleClass="small-label"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <!-- Main Content -->
+    <center>
+        <TabPane tabClosingPolicy="UNAVAILABLE">
+            <!-- Dashboard Tab -->
+            <Tab text="📊 Dashboard">
+                <ScrollPane fitToWidth="true" fitToHeight="true">
+                    <VBox spacing="20" style="-fx-padding: 20;">
+
+                        <!-- Statistics Cards -->
+                        <GridPane hgap="20" vgap="20">
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="25"/>
+                        <ColumnConstraints percentWidth="25"/>
+                        <ColumnConstraints percentWidth="25"/>
+                        <ColumnConstraints percentWidth="25"/>
+                    </columnConstraints>
+
+                    <!-- Total Threats Card -->
+                    <VBox styleClass="stat-card, card-danger" GridPane.columnIndex="0">
+                        <Label text="Total Threats" styleClass="card-title"/>
+                        <Label fx:id="totalThreatsLabel" text="0" styleClass="card-value">
+                            <font><Font size="32.0" name="System Bold"/></font>
+                        </Label>
+                    </VBox>
+
+                    <!-- Total Sessions Card -->
+                    <VBox styleClass="stat-card, card-info" GridPane.columnIndex="1">
+                        <Label text="Total Sessions" styleClass="card-title"/>
+                        <Label fx:id="totalSessionsLabel" text="0" styleClass="card-value">
+                            <font><Font size="32.0" name="System Bold"/></font>
+                        </Label>
+                    </VBox>
+
+                    <!-- Active Sessions Card -->
+                    <VBox styleClass="stat-card, card-success" GridPane.columnIndex="2">
+                        <Label text="Active Sessions" styleClass="card-title"/>
+                        <Label fx:id="activeSessionsLabel" text="0" styleClass="card-value">
+                            <font><Font size="32.0" name="System Bold"/></font>
+                        </Label>
+                    </VBox>
+
+                    <!-- Canary Hits Card -->
+                    <VBox styleClass="stat-card, card-warning" GridPane.columnIndex="3">
+                        <Label text="Canary Trap Hits" styleClass="card-title"/>
+                        <Label fx:id="canaryHitsLabel" text="0" styleClass="card-value">
+                            <font><Font size="32.0" name="System Bold"/></font>
+                        </Label>
+                    </VBox>
+                </GridPane>
+
+                <!-- Charts Row -->
+                <GridPane hgap="20" vgap="20">
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="50"/>
+                        <ColumnConstraints percentWidth="50"/>
+                    </columnConstraints>
+
+                    <!-- Client Type Distribution -->
+                    <VBox styleClass="chart-container" GridPane.columnIndex="0">
+                        <Label text="Threats by Client Type" styleClass="chart-title">
+                            <font><Font size="16.0" name="System Bold"/></font>
+                        </Label>
+                        <PieChart fx:id="clientTypePieChart" legendVisible="true" VBox.vgrow="ALWAYS"/>
+                    </VBox>
+
+                    <!-- Severity Distribution -->
+                    <VBox styleClass="chart-container" GridPane.columnIndex="1">
+                        <Label text="Threats by Severity" styleClass="chart-title">
+                            <font><Font size="16.0" name="System Bold"/></font>
+                        </Label>
+                        <BarChart fx:id="severityBarChart" VBox.vgrow="ALWAYS">
+                            <xAxis>
+                                <CategoryAxis side="BOTTOM"/>
+                            </xAxis>
+                            <yAxis>
+                                <NumberAxis side="LEFT"/>
+                            </yAxis>
+                        </BarChart>
+                    </VBox>
+                </GridPane>
+
+                <!-- Tables Row -->
+                <GridPane hgap="20" vgap="20">
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="70"/>
+                        <ColumnConstraints percentWidth="30"/>
+                    </columnConstraints>
+
+                    <!-- Recent Threats Table -->
+                    <VBox styleClass="table-container" GridPane.columnIndex="0">
+                        <Label text="Recent Threats" styleClass="table-title">
+                            <font><Font size="16.0" name="System Bold"/></font>
+                        </Label>
+                        <TableView fx:id="threatsTable" VBox.vgrow="ALWAYS">
+                            <columns>
+                                <TableColumn fx:id="sessionIdColumn" text="Session ID" prefWidth="120"/>
+                                <TableColumn fx:id="ipAddressColumn" text="IP Address" prefWidth="120"/>
+                                <TableColumn fx:id="clientTypeColumn" text="Client Type" prefWidth="120"/>
+                                <TableColumn fx:id="severityColumn" text="Severity" prefWidth="100"/>
+                                <TableColumn fx:id="confidenceColumn" text="Confidence" prefWidth="100"/>
+                                <TableColumn fx:id="timestampColumn" text="Timestamp" prefWidth="150"/>
+                            </columns>
+                        </TableView>
+                    </VBox>
+
+                    <!-- Top Attacking IPs -->
+                    <VBox styleClass="table-container" GridPane.columnIndex="1">
+                        <Label text="Top Attacking IPs" styleClass="table-title">
+                            <font><Font size="16.0" name="System Bold"/></font>
+                        </Label>
+                        <TableView fx:id="topIPsTable" VBox.vgrow="ALWAYS">
+                            <columns>
+                                <TableColumn fx:id="ipColumn" text="IP Address" prefWidth="150"/>
+                                <TableColumn fx:id="countColumn" text="Count" prefWidth="80"/>
+                            </columns>
+                        </TableView>
+                    </VBox>
+                </GridPane>
+                    </VBox>
+                </ScrollPane>
+            </Tab>
+
+            <!-- Analysis Tab -->
+            <Tab text="🔍 Analysis">
+                <fx:include source="analysis-panel.fxml"/>
+            </Tab>
+        </TabPane>
+    </center>
+
+</BorderPane>
+

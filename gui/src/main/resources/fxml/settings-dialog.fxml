@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.aihoneypot.gui.controller.SettingsController"
+      spacing="20" style="-fx-padding: 20;">
+
+    <!-- Title -->
+    <Label text="⚙️ Settings" styleClass="dialog-title">
+        <font>
+            <Font name="System Bold" size="20.0"/>
+        </font>
+    </Label>
+
+    <Separator/>
+
+    <!-- Theme Selection -->
+    <VBox spacing="10">
+        <Label text="Theme" styleClass="section-title">
+            <font>
+                <Font name="System Bold" size="14.0"/>
+            </font>
+        </Label>
+
+        <RadioButton fx:id="darkThemeRadio" text="🌙 Dark Theme" selected="true">
+            <font>
+                <Font size="13.0"/>
+            </font>
+        </RadioButton>
+
+        <RadioButton fx:id="lightThemeRadio" text="☀️ Light Theme">
+            <font>
+                <Font size="13.0"/>
+            </font>
+        </RadioButton>
+
+        <RadioButton fx:id="iosThemeRadio" text="🍎 iOS Theme (Soft & Rounded)">
+            <font>
+                <Font size="13.0"/>
+            </font>
+        </RadioButton>
+    </VBox>
+
+    <Separator/>
+
+    <!-- Buttons -->
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <Button text="Cancel" onAction="#handleCancel" prefWidth="100" styleClass="button"/>
+        <Button text="Save" onAction="#handleSave" prefWidth="100" styleClass="button-primary"/>
+    </HBox>
+
+</VBox>
+

@@ -31,6 +31,7 @@
         <module>analyzer</module>
         <module>dashboard</module>
         <module>x-detector</module>
+        <module>gui</module>
         <module>honeypot</module>
     </modules>
 
@@ -63,6 +64,7 @@
         <postgresql.version>42.7.1</postgresql.version>
         <mockito.version>5.8.0</mockito.version>
         <jacoco.version>0.8.11</jacoco.version>
+        <javafx.version>21.0.1</javafx.version>
     </properties>
 
     <!-- ================================================================
@@ -190,6 +192,28 @@
                 <artifactId>mockito-junit-jupiter</artifactId>
                 <version>${mockito.version}</version>
                 <scope>test</scope>
+            </dependency>
+
+            <!-- ── JavaFX ───────────────────────────────────────────── -->
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-controls</artifactId>
+                <version>${javafx.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-fxml</artifactId>
+                <version>${javafx.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-graphics</artifactId>
+                <version>${javafx.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-web</artifactId>
+                <version>${javafx.version}</version>
             </dependency>
 
         </dependencies>

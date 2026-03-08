@@ -5,6 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * Main Spring Boot application entry point for AIHoneypot.
@@ -13,6 +14,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
  * and automated HTTP clients using behavioral fingerprinting.
  */
 @SpringBootApplication
+@EnableScheduling
 @ComponentScan(basePackages = {
     "com.aihoneypot.core",
     "com.aihoneypot.collector",

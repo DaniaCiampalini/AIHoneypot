@@ -108,7 +108,7 @@ AIHoneypot/
 Запустите все одной командой:
 
 ```bash
-./start-complete.sh
+./scripts/start-complete.sh
 ```
 
 Этот скрипт:
@@ -141,7 +141,7 @@ mvn javafx:run
 Или используйте скрипт только для GUI:
 
 ```bash
-./start-gui-only.sh
+./scripts/start-gui-only.sh
 ```
 
 ### Вариант 3: Только GUI (Backend уже запущен)
@@ -149,7 +149,7 @@ mvn javafx:run
 Если backend уже работает:
 
 ```bash
-./start-gui-only.sh
+./scripts/start-gui-only.sh
 ```
 
 Это проверит, что backend активен, и запустит GUI.
@@ -166,7 +166,7 @@ lsof -ti:8080 | xargs kill -9
 
 ### Точки доступа
 
-- **GUI панель управления**: Открывается автоматически при запуске `./start-complete.sh` или `./start-gui-only.sh`
+- **GUI панель управления**: Открывается автоматически при запуске `./scripts/start-complete.sh` или `./scripts/start-gui-only.sh`
 - **Swagger API**: http://localhost:8080/swagger-ui.html
 - **Консоль H2**: http://localhost:8080/h2-console
 - **Документация API**: http://localhost:8080/api-docs

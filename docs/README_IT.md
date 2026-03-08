@@ -123,7 +123,7 @@ honeypot (principale)
 Avvia tutto con un singolo comando:
 
 ```bash
-./start-complete.sh
+./scripts/start-complete.sh
 ```
 
 Questo script:
@@ -156,7 +156,7 @@ mvn javafx:run
 Oppure usa lo script solo-GUI:
 
 ```bash
-./start-gui-only.sh
+./scripts/start-gui-only.sh
 ```
 
 ### Opzione 3: Solo GUI (Backend già in esecuzione)
@@ -164,7 +164,7 @@ Oppure usa lo script solo-GUI:
 Se il backend è già attivo:
 
 ```bash
-./start-gui-only.sh
+./scripts/start-gui-only.sh
 ```
 
 Questo controlla se il backend è attivo e avvia la GUI.
@@ -181,7 +181,7 @@ lsof -ti:8080 | xargs kill -9
 
 ### Punti di Accesso
 
-- **Dashboard GUI**: Si apre automaticamente quando esegui `./start-complete.sh` o `./start-gui-only.sh`
+- **Dashboard GUI**: Si apre automaticamente quando esegui `./scripts/start-complete.sh` o `./scripts/start-gui-only.sh`
 - **Swagger API**: http://localhost:8080/swagger-ui.html
 - **Console H2**: http://localhost:8080/h2-console
 - **Documentazione API**: http://localhost:8080/api-docs

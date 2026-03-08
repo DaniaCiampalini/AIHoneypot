@@ -12,13 +12,13 @@ A sophisticated honeypot system for detecting and classifying AI agents, bots, a
 ## 🌍 Documentation in Other Languages
 
 - 🇬🇧 [English](README.md) (Current)
-- 🇮🇹 [Italiano](README_IT.md)
-- 🇫🇷 [Français](README_FR.md)
-- 🇪🇸 [Español](README_ES.md)
-- 🇩🇪 [Deutsch](README_DE.md)
-- 🇨🇳 [简体中文](README_ZH.md)
-- 🇯🇵 [日本語](README_JA.md)
-- 🇷🇺 [Русский](README_RU.md)
+- 🇮🇹 [Italiano](docs/README_IT.md)
+- 🇫🇷 [Français](docs/README_FR.md)
+- 🇪🇸 [Español](docs/README_ES.md)
+- 🇩🇪 [Deutsch](docs/README_DE.md)
+- 🇨🇳 [简体中文](docs/README_ZH.md)
+- 🇯🇵 [日本語](docs/README_JA.md)
+- 🇷🇺 [Русский](docs/README_RU.md)
 
 ---
 
@@ -77,6 +77,8 @@ This is a Maven multi-module project with the following structure:
 
 ```
 AIHoneypot/
+├── docs/              # Translated README files
+├── scripts/           # Startup shell scripts
 ├── core/              # Domain models, interfaces, exceptions
 ├── collector/         # Signal collection layer (servlet filters)
 ├── analyzer/          # Threat classification engine
@@ -123,7 +125,7 @@ honeypot (main)
 Start everything with a single command:
 
 ```bash
-./start-complete.sh
+./scripts/start-complete.sh
 ```
 
 This script will:
@@ -156,7 +158,7 @@ mvn javafx:run
 Or use the GUI-only script:
 
 ```bash
-./start-gui-only.sh
+./scripts/start-gui-only.sh
 ```
 
 ### Option 3: GUI Only (Backend Already Running)
@@ -164,7 +166,7 @@ Or use the GUI-only script:
 If the backend is already running:
 
 ```bash
-./start-gui-only.sh
+./scripts/start-gui-only.sh
 ```
 
 This checks if backend is up and starts the GUI.
@@ -181,7 +183,7 @@ lsof -ti:8080 | xargs kill -9
 
 ### Access Points
 
-- **GUI Dashboard**: Automatically opens when running `./start-complete.sh` or `./start-gui-only.sh`
+- **GUI Dashboard**: Automatically opens when running `./scripts/start-complete.sh` or `./scripts/start-gui-only.sh`
 - **API Swagger**: http://localhost:8080/swagger-ui.html
 - **H2 Console**: http://localhost:8080/h2-console
 - **API Docs**: http://localhost:8080/api-docs

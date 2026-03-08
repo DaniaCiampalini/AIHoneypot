@@ -2,6 +2,11 @@
 
 # Script completo per avviare backend e GUI di AIHoneypot
 
+# Resolve project root relative to script location
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+cd "$PROJECT_ROOT"
+
 echo "AIHoneypot - Complete Startup Script"
 echo "=========================================="
 echo ""

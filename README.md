@@ -1,3 +1,4 @@
+```markdown
 # AIHoneypot - AI Agent Detection System
 
 ![Java](https://img.shields.io/badge/Java-17-orange)
@@ -5,7 +6,7 @@
 ![Maven](https://img.shields.io/badge/Maven-Multi--Module-blue)
 ![License](https://img.shields.io/badge/License-MIT-blue)
 
-A sophisticated honeypot system for detecting and classifying AI agents, bots, and automated HTTP clients using behavioral fingerprinting and machine learning.
+A sophisticated honeypot system for detecting and classifying AI agents, bots, and automated HTTP clients using behavioral fingerprinting and rule-based heuristics.
 
 ---
 
@@ -32,31 +33,36 @@ A sophisticated honeypot system for detecting and classifying AI agents, bots, a
   - iOS-inspired modern theme with smooth animations
   
 - **🚗 Traffic Simulator**: Generates realistic honeypot traffic for testing
-  - Automatic traffic generation every 5-30 seconds
-  - Realistic attack patterns (SQL injection, XSS, bot scans)
-  - Burst traffic waves for stress testing
+  - Automatic realistic traffic generation every 5 seconds
+  - Attack simulations every 30 seconds
+  - Burst traffic waves every 2 minutes for stress testing
   - Multiple client types (humans, bots, AI agents, scanners)
 
 - **🌱 Database Seeding**: Pre-populates database with historical data
-  - 255+ initial threat sessions
+  - ~270 initial threat sessions
   - 7 days of historical patterns
-  - Realistic attack distributions by severity
+  - Realistic attack distributions by severity (including SQL injection and bot scan spikes)
 
 - **🔍 Behavioral Fingerprinting**: Analyzes HTTP request patterns to distinguish humans from bots
 
-- **🧠 Multi-Layer Classification**: 
-  - Rule-based detection for known patterns
-  - Isolation Forest for anomaly detection
-  - Ensemble methods combining multiple classifiers
+- **🧠 Threat Classification (Rule-Based)**:
+  - Heuristic detection based on headers, timing, and canary access
+  - AI agent, bot scraper, and security scanner identification
 
 - **🐦 X (Twitter) Bot Detection**: Specialized module for detecting bots and AI agents on social media
   - Profile analysis (age, username patterns, bio detection)
   - Network analysis (follower/following ratios)
   - Temporal patterns (posting frequency)
   - AI-generated text detection
+  - Explainable scoring and recommendations
 
 - **🕸️ Canary Traps**: Decoy endpoints that no legitimate user should access
-  - `/admin`, `/wp-admin`, `/.env`, `/backup`, `/.git` and more
+  - `/admin`, `/wp-admin`
+  - `/.env`
+  - `/config`
+  - `/api/internal`
+  - `/.git`
+  - `/backup`
   - Automatic CRITICAL severity on access
 
 - **💾 Real-time Threat Logging**: Persists threat sessions to H2/PostgreSQL database
@@ -65,11 +71,12 @@ A sophisticated honeypot system for detecting and classifying AI agents, bots, a
 
 - **🔄 Session Tracking**: Correlates multiple requests from the same session
 
-- **🔒 Security Analysis**: Website security scanner with 7-level analysis
-  - SSL/TLS validation
-  - Security headers check
-  - Port scanning
-  - Vulnerability detection
+- **🔒 Website Security Analysis (GUI)**:
+  - SSL/HTTPS checks
+  - Security header review
+  - Heuristic vulnerability and risk scoring
+
+---
 
 ## 🏗️ Architecture
 
@@ -83,8 +90,8 @@ AIHoneypot/
 ├── collector/         # Signal collection layer (servlet filters)
 ├── analyzer/          # Threat classification engine
 ├── dashboard/         # REST API and statistics
-├── gui/               # JavaFX Desktop Dashboard (NEW!)
-├── x-detector/        # X (Twitter) bot detection module
+├── gui/               # JavaFX Desktop Dashboard
+├── x-detector         # X (Twitter) bot detection module
 └── honeypot/          # Main Spring Boot application + canary traps + traffic simulator
 ```
 
@@ -93,7 +100,7 @@ AIHoneypot/
 - **Backend**: Spring Boot 3.2.2, Java 17
 - **Frontend**: JavaFX 21 (Desktop GUI)
 - **Database**: H2 (in-memory) / PostgreSQL (production)
-- **ML/AI**: Custom isolation forest, rule-based classification
+- **ML/AI**: Rule-based classification (ML planned; see Roadmap)
 - **Charts**: JavaFX Charts API
 - **Build**: Maven Multi-Module
 
@@ -112,6 +119,8 @@ honeypot (main)
     └── core
 ```
 
+---
+
 ## 🚀 Quick Start
 
 ### Prerequisites
@@ -129,11 +138,11 @@ Start everything with a single command:
 ```
 
 This script will:
-1. ✅ Check if backend is running
-2. ✅ Build project if needed
-3. ✅ Start backend in background
-4. ✅ Wait for backend to be ready
-5. ✅ Launch GUI Dashboard
+1. ✅ Check if backend is running  
+2. ✅ Build project if needed  
+3. ✅ Start backend in background  
+4. ✅ Wait for backend to be ready  
+5. ✅ Launch GUI Dashboard  
 
 **Note**: The backend runs in background. Logs are in `/tmp/aihoneypot-backend.log`
 
@@ -189,52 +198,56 @@ lsof -ti:8080 | xargs kill -9
 - **API Docs**: http://localhost:8080/api-docs
 - **Health Check**: http://localhost:8080/actuator/health
 
+---
+
 ## 📊 Core Domain Classes
 
 ### Core Module (10 classes)
 
-1. **ClientType** (enum) - HUMAN_BROWSER, AI_AGENT, BOT_SCRAPER, etc.
-2. **Severity** (enum) - LOW, MEDIUM, HIGH, CRITICAL
-3. **SignalType** (enum) - Types of behavioral signals
-4. **RawRequestSignals** - Raw HTTP request data
-5. **ClassificationResult** - Output of threat classification
-6. **BehaviorSignalExtractor** (interface) - Feature extraction contract
-7. **ThreatClassifier** (interface) - Classification contract
-8. **AIHoneypotException** - Base exception
-9. **SignalExtractionException** - Signal extraction errors
-10. **ClassificationException** - Classification errors
+1. **ClientType** (enum) - HUMAN_BROWSER, AI_AGENT, BOT_SCRAPER, SEARCH_ENGINE, SECURITY_SCANNER, UNKNOWN  
+2. **Severity** (enum) - LOW, MEDIUM, HIGH, CRITICAL  
+3. **SignalType** (enum) - Types of behavioral signals  
+4. **RawRequestSignals** - Raw HTTP request data  
+5. **ClassificationResult** - Output of threat classification  
+6. **BehaviorSignalExtractor** (interface) - Feature extraction contract  
+7. **ThreatClassifier** (interface) - Classification contract  
+8. **AIHoneypotException** - Base exception  
+9. **SignalExtractionException** - Signal extraction errors  
+10. **ClassificationException** - Classification errors  
 
 ### Collector Module (3 classes)
 
-1. **SessionStore** - In-memory session tracking
-2. **HttpServletSignalExtractor** - Extracts signals from servlet requests
-3. **SignalCollectorFilter** - Servlet filter intercepting all requests
+1. **SessionStore** - In-memory session tracking  
+2. **HttpServletSignalExtractor** - Extracts signals from servlet requests  
+3. **SignalCollectorFilter** - Servlet filter intercepting all requests  
 
 ### Analyzer Module (4 classes)
 
-1. **RuleBasedClassifier** - Heuristic threat detection
-2. **ThreatSession** - JPA entity for persisted threats
-3. **ThreatSessionRepository** - Spring Data JPA repository
-4. **ThreatLogService** - Service for logging threats to DB
+1. **RuleBasedClassifier** - Heuristic threat detection  
+2. **ThreatSession** - JPA entity for persisted threats  
+3. **ThreatSessionRepository** - Spring Data JPA repository  
+4. **ThreatLogService** - Service for logging threats to DB  
 
 ### Honeypot Module
 
-1. **AIHoneypotApplication** - Spring Boot main class
-2. **CanaryController** - Trap endpoints (/admin, /.env, etc.)
-3. **application.properties** - Configuration
+1. **AIHoneypotApplication** - Spring Boot main class  
+2. **CanaryController** - Trap endpoints  
+3. **application.properties** - Configuration  
+
+---
 
 ## 🕷️ Canary Trap Endpoints
 
 The following endpoints are traps that trigger immediate threat classification:
 
-- `/admin`, `/wp-admin` - Admin panel traps
-- `/.env`, `/.env.local` - Environment file traps
-- `/config`, `/configuration` - Config file traps
-- `/api/internal` - Internal API trap
-- `/.git`, `/.svn` - Version control traps
-- `/backup`, `/*.bak` - Backup file traps
-- `/*.sql`, `/dump.sql` - Database dump traps
-- `/phpmyadmin` - PHPMyAdmin trap
+- `/admin`, `/wp-admin`  
+- `/.env`  
+- `/config`  
+- `/api/internal`  
+- `/.git`  
+- `/backup`  
+
+---
 
 ## 📡 API Endpoints
 
@@ -249,6 +262,8 @@ GET /api/dashboard/stats/by-severity      - Count by severity
 GET /api/dashboard/stats/top-ips          - Top attacking IPs
 GET /api/dashboard/health                 - Health check
 ```
+
+---
 
 ## 🔧 Configuration
 
@@ -265,6 +280,8 @@ honeypot.threat.confidence-threshold=0.5
 honeypot.canary.enabled=true
 ```
 
+---
+
 ## 🧪 Testing
 
 Run tests across all modules:
@@ -273,16 +290,20 @@ Run tests across all modules:
 mvn test
 ```
 
+---
+
 ## 📈 Detection Signals
 
 The system analyzes these behavioral signals:
 
-- **Timing**: Request intervals, session duration
-- **Headers**: User-Agent patterns, missing Accept headers, header order
-- **Behavioral**: Mouse movement, JavaScript execution, cookie handling
-- **Navigation**: Direct endpoint access, missing referer
-- **Content**: Form submission speed, canary trap triggers
-- **Network**: IP reputation, geolocation
+- **Timing**: Request intervals, session duration  
+- **Headers**: User-Agent patterns, missing Accept headers, header order  
+- **Behavioral**: JavaScript detection, cookie handling (as available)  
+- **Navigation**: Direct endpoint access, missing referer  
+- **Content**: Canary trap triggers  
+- **Network**: IP analysis (as available)
+
+---
 
 ## 🛡️ Threat Classification
 
@@ -296,13 +317,7 @@ Uses heuristics to detect:
 - Canary trap access
 - Suspiciously fast request patterns
 
-### Isolation Forest Classifier
-
-Uses statistical anomaly detection to identify unusual behavioral patterns.
-
-### Ensemble Classifier
-
-Combines multiple classifiers for robust detection.
+---
 
 ## 🤖 X Bot Detector
 
@@ -310,11 +325,10 @@ Specialized module for detecting bots and AI agents on X (Twitter) with advanced
 
 ### Features
 
-- **5 Independent Analyzers**: Profile, Network, Temporal, Text, Behavior
-- **31 Behavioral Signals**: AI/LLM patterns, engagement metrics, temporal analysis
-- **Manual Input Mode**: Works without Twitter API key - just provide public profile data
-- **Explainable Predictions**: Each classification includes detailed explanation and triggered signals
-- **Configurable Weights**: Each analyzer has adjustable weight in final score
+- **5 Independent Analyzers**: Profile, Network, Temporal, Text, Behavior  
+- **Explainable Predictions**: Each classification includes detailed explanation and triggered signals  
+- **Configurable Weights**: Each analyzer has adjustable weight in final score  
+- **Manual Input Mode**: Works without Twitter API key  
 
 ### Analyzers Breakdown
 
@@ -396,6 +410,8 @@ The Text Analyzer detects common AI-generated content patterns:
 
 For more details, see [x-detector/README.md](x-detector/README.md)
 
+---
+
 ## 📝 Example Detection
 
 ```json
@@ -415,19 +431,37 @@ For more details, see [x-detector/README.md](x-detector/README.md)
 }
 ```
 
+---
+
+## 🧭 Roadmap (Planned Enhancements)
+
+The following items are not yet implemented but are planned for future iterations:
+
+- **Isolation Forest classifier** for statistical anomaly detection  
+- **Ensemble classifier** combining multiple signals/classifiers  
+- **Expanded canary endpoint coverage** beyond the current core list  
+- **Richer behavioral signals** (mouse movement, advanced JS fingerprinting)  
+- **Extended security analysis depth** with multi-stage scoring  
+
+---
+
 ## 🤝 Contributing
 
 Contributions are welcome! Please follow these steps:
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests
-5. Submit a pull request
+1. Fork the repository  
+2. Create a feature branch  
+3. Make your changes  
+4. Add tests  
+5. Submit a pull request  
+
+---
 
 ## 📄 License
 
 This project is licensed under the MIT License.
+
+---
 
 ## 👤 Author
 
@@ -436,4 +470,4 @@ This project is licensed under the MIT License.
 ---
 
 ⚠️ **Note**: This is a honeypot system designed for research and security monitoring. Deploy responsibly and ensure compliance with relevant laws and regulations.
-
+```

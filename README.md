@@ -1,4 +1,4 @@
-```markdown
+
 # AIHoneypot - AI Agent Detection System
 
 ![Java](https://img.shields.io/badge/Java-17-orange)
@@ -470,4 +470,3 @@ This project is licensed under the MIT License.
 ---
 
 ⚠️ **Note**: This is a honeypot system designed for research and security monitoring. Deploy responsibly and ensure compliance with relevant laws and regulations.
-```

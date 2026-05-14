@@ -5,84 +5,101 @@
 ![Maven](https://img.shields.io/badge/Maven-Multi--Module-blue)
 ![License](https://img.shields.io/badge/License-MIT-blue)
 
-Un sofisticato sistema honeypot per rilevare e classificare agenti AI, bot e client HTTP automatizzati utilizzando fingerprinting comportamentale e machine learning.
+Un sofisticato sistema honeypot per rilevare e classificare agenti AI, bot e client HTTP automatizzati utilizzando fingerprinting comportamentale ed euristiche basate su regole.
 
 ---
 
-## 🌍 Documentazione in Altre Lingue
+## Documentazione in Altre Lingue
 
-- 🇬🇧 [English](README.md)
-- 🇮🇹 [Italiano](README_IT.md) (Corrente)
-- 🇫🇷 [Français](README_FR.md)
-- 🇪🇸 [Español](README_ES.md)
-- 🇩🇪 [Deutsch](README_DE.md)
-- 🇨🇳 [简体中文](README_ZH.md)
-- 🇯🇵 [日本語](README_JA.md)
-- 🇷🇺 [Русский](README_RU.md)
+- [English](../README.md)
+- [Italiano](README_IT.md) (Corrente)
+- [Español](README_ES.md)
+- [Deutsch](README_DE.md)
 
 ---
 
-## 🎯 Caratteristiche
+## Caratteristiche
 
-- **🎨 Dashboard GUI Interattiva**: Bellissima applicazione desktop JavaFX con monitoraggio in tempo reale
+- **Dashboard GUI Interattiva**: Bellissima applicazione desktop JavaFX con monitoraggio in tempo reale
   - Statistiche minacce live con auto-refresh
   - Grafici interattivi (Torta e Barre) per visualizzazione dati
   - Tabella minacce recenti con informazioni dettagliate
   - Analisi top IP attaccanti
   - Tema moderno ispirato a iOS con animazioni fluide
   
-- **🚗 Simulatore di Traffico**: Genera traffico honeypot realistico per test
-  - Generazione automatica traffico ogni 5-30 secondi
-  - Pattern di attacco realistici (SQL injection, XSS, bot scan)
-  - Ondate di traffico burst per stress testing
+- **Simulatore di Traffico**: Genera traffico honeypot realistico per test
+  - Generazione automatica traffico ogni 5 secondi
+  - Simulazioni di attacco ogni 30 secondi
+  - Ondate di traffico burst ogni 2 minuti per stress testing
   - Tipi client multipli (umani, bot, agenti AI, scanner)
 
-- **🌱 Popolamento Database**: Pre-popola il database con dati storici
-  - 255+ sessioni minaccia iniziali
+- **Popolamento Database**: Pre-popola il database con dati storici
+  - ~270 sessioni minaccia iniziali
   - 7 giorni di pattern storici
-  - Distribuzioni attacchi realistiche per severità
+  - Distribuzioni attacchi realistiche per severità (inclusi SQL injection e picchi di bot scan)
 
-- **🔍 Fingerprinting Comportamentale**: Analizza i pattern delle richieste HTTP per distinguere umani da bot
+- **Fingerprinting Comportamentale**: Analizza i pattern delle richieste HTTP per distinguere umani da bot
 
-- **🧠 Classificazione Multi-Livello**: 
-  - Rilevamento basato su regole per pattern noti
-  - Isolation Forest per rilevamento anomalie
-  - Metodi ensemble che combinano più classificatori
+## Classificazione Minacce
+- **Layer 1: Rule-Based Classifier**: Rilevamento euristico basato su header, timing e accesso a canary (Decidibile per costruzione).
+- **Layer 2: Isolation Forest Anomaly Detection**: ML non supervisionato per rilevare pattern di attacco ignoti e shift della distribuzione (Caso di studio tesi).
+- **Layer 3: Ensemble Detection**: Integrazione di approcci basati su regole e ML per superare i limiti teorici individuali (Teorema No Free Lunch).
 
-- **🐦 Rilevamento Bot su X (Twitter)**: Modulo specializzato per rilevare bot e agenti AI sui social media
+---
+
+## Tesi: Limiti teorici dei sistemi ML per la security
+Questo progetto è strutturato come caso di studio per la tesi sui limiti della rilevazione automatica.
+- **Scenari di Test**:
+  1. **Pattern Noti**: Efficacia del Rule-Based Classifier.
+  2. **Anomalie Ignoto**: Efficacia dell'Isolation Forest su zero-day.
+  3. **Traffico Borderline**: Analisi dei falsi positivi/negativi e limiti del PAC-learning.
+- **Integrazione Weka**: Utilizzo del package isolationForest per l'analisi statistica del traffico.
+
+- **Rilevamento Bot su X (Twitter)**: Modulo specializzato per rilevare bot e agenti AI sui social media
   - Analisi profilo (età, pattern username, rilevamento bio)
   - Analisi network (rapporti follower/following)
   - Pattern temporali (frequenza pubblicazione)
   - Rilevamento testo generato da AI
+  - Scoring spiegabile e raccomandazioni
 
-- **🕸️ Trappole Canary**: Endpoint esca che nessun utente legittimo dovrebbe accedere
-  - `/admin`, `/wp-admin`, `/.env`, `/backup`, `/.git` e altri
+- **Trappole Canary**: Endpoint esca che nessun utente legittimo dovrebbe accedere
+  - /admin, /wp-admin
+  - /.env
+  - /config
+  - /api/internal
+  - /.git
+  - /backup
   - Severità CRITICAL automatica all'accesso
 
-- **💾 Logging Minacce in Tempo Reale**: Persiste le sessioni di minaccia su database H2/PostgreSQL
+- **Logging Minacce in Tempo Reale**: Persiste le sessioni di minaccia su database H2/PostgreSQL
 
-- **📊 Dashboard API REST**: Monitora e analizza le minacce rilevate tramite endpoint HTTP
+- **Dashboard API REST**: Monitora e analizza le minacce rilevate tramite endpoint HTTP
+  - Export CSV: Esportazione dati per analisi sperimentale e valutazione tesi
 
-- **🔄 Tracciamento Sessioni**: Correla multiple richieste dalla stessa sessione
+- **Tracciamento Sessioni**: Correla multiple richieste dalla stessa sessione
+  - Feature Engineering Avanzato: Tracciamento dei tassi di richiesta e timing medio tra le richieste
 
-- **🔒 Analisi Sicurezza**: Scanner sicurezza siti web con analisi a 7 livelli
-  - Validazione SSL/TLS
-  - Controllo header sicurezza
-  - Port scanning
-  - Rilevamento vulnerabilità
+- **Analisi Sicurezza Sito Web (GUI)**:
+  - Controlli SSL/HTTPS
+  - Revisione header di sicurezza
+  - Scoring euristico di vulnerabilità e rischio
 
-## 🏗️ Architettura
+---
+
+## Architettura
 
 Questo è un progetto Maven multi-modulo con la seguente struttura:
 
 ```
 AIHoneypot/
+├── docs/              # File README tradotti
+├── scripts/           # Script shell di avvio
 ├── core/              # Modelli dominio, interfacce, eccezioni
 ├── collector/         # Layer raccolta segnali (filtri servlet)
 ├── analyzer/          # Motore classificazione minacce
 ├── dashboard/         # API REST e statistiche
-├── gui/               # Dashboard Desktop JavaFX (NUOVO!)
-├── x-detector/        # Modulo rilevamento bot X (Twitter)
+├── gui/               # Dashboard Desktop JavaFX
+├── x-detector         # Modulo rilevamento bot X (Twitter)
 └── honeypot/          # Applicazione Spring Boot principale + trappole canary + simulatore traffico
 ```
 
@@ -91,7 +108,7 @@ AIHoneypot/
 - **Backend**: Spring Boot 3.2.2, Java 17
 - **Frontend**: JavaFX 21 (GUI Desktop)
 - **Database**: H2 (in-memory) / PostgreSQL (produzione)
-- **ML/AI**: Isolation forest personalizzato, classificazione basata su regole
+- **ML/AI**: Weka Isolation Forest, Euristiche basate su regole, Metodi Ensemble
 - **Grafici**: JavaFX Charts API
 - **Build**: Maven Multi-Module
 
@@ -110,7 +127,9 @@ honeypot (principale)
     └── core
 ```
 
-## 🚀 Avvio Rapido
+---
+
+## Avvio Rapido
 
 ### Prerequisiti
 
@@ -127,13 +146,13 @@ Avvia tutto con un singolo comando:
 ```
 
 Questo script:
-1. ✅ Controlla se il backend è in esecuzione
-2. ✅ Compila il progetto se necessario
-3. ✅ Avvia il backend in background
-4. ✅ Aspetta che il backend sia pronto
-5. ✅ Lancia la Dashboard GUI
+1. Controlla se il backend è in esecuzione
+2. Compila il progetto se necessario
+3. Avvia il backend in background
+4. Aspetta che il backend sia pronto
+5. Lancia la Dashboard GUI
 
-**Nota**: Il backend viene eseguito in background. I log sono in `/tmp/aihoneypot-backend.log`
+**Nota**: Il backend viene eseguito in background. I log sono in /tmp/aihoneypot-backend.log
 
 ### Opzione 2: Avvio Manuale
 
@@ -144,7 +163,7 @@ cd honeypot
 mvn spring-boot:run
 ```
 
-L'applicazione si avvierà su `http://localhost:8080`
+L'applicazione si avvierà su http://localhost:8080
 
 #### Avvia GUI (in un altro terminale)
 
@@ -181,17 +200,19 @@ lsof -ti:8080 | xargs kill -9
 
 ### Punti di Accesso
 
-- **Dashboard GUI**: Si apre automaticamente quando esegui `./scripts/start-complete.sh` o `./scripts/start-gui-only.sh`
+- **Dashboard GUI**: Si apre automaticamente quando esegui ./scripts/start-complete.sh o ./scripts/start-gui-only.sh
 - **Swagger API**: http://localhost:8080/swagger-ui.html
 - **Console H2**: http://localhost:8080/h2-console
 - **Documentazione API**: http://localhost:8080/api-docs
 - **Health Check**: http://localhost:8080/actuator/health
 
-## 📊 Classi Domain Core
+---
+
+## Classi Domain Core
 
 ### Modulo Core (10 classi)
 
-1. **ClientType** (enum) - HUMAN_BROWSER, AI_AGENT, BOT_SCRAPER, ecc.
+1. **ClientType** (enum) - HUMAN_BROWSER, AI_AGENT, BOT_SCRAPER, SEARCH_ENGINE, SECURITY_SCANNER, UNKNOWN
 2. **Severity** (enum) - LOW, MEDIUM, HIGH, CRITICAL
 3. **SignalType** (enum) - Tipi di segnali comportamentali
 4. **RawRequestSignals** - Dati richiesta HTTP raw
@@ -202,39 +223,45 @@ lsof -ti:8080 | xargs kill -9
 9. **SignalExtractionException** - Errori estrazione segnali
 10. **ClassificationException** - Errori classificazione
 
-### Modulo Collector (3 classi)
+### Modulo Collector (4 classi)
 
 1. **SessionStore** - Tracciamento sessioni in memoria
 2. **HttpServletSignalExtractor** - Estrae segnali dalle richieste servlet
 3. **SignalCollectorFilter** - Filtro servlet che intercetta tutte le richieste
+4. **IsolationForestAnomalyDetector** - Rilevamento anomalie non supervisionato utilizzando Weka
 
-### Modulo Analyzer (4 classi)
+### Modulo Analyzer (5 classi)
 
 1. **RuleBasedClassifier** - Rilevamento minacce euristico
-2. **ThreatSession** - Entità JPA per minacce persistite
-3. **ThreatSessionRepository** - Repository Spring Data JPA
-4. **ThreatLogService** - Servizio per logging minacce su DB
+2. **EnsembleClassifier** - Classificatore aggregato (Layer 3)
+3. **ThreatSession** - Entità JPA per minacce persistite
+4. **ThreatSessionRepository** - Repository Spring Data JPA
+5. **ThreatLogService** - Servizio per logging minacce su DB
 
 ### Modulo Honeypot
 
 1. **AIHoneypotApplication** - Classe main Spring Boot
-2. **CanaryController** - Endpoint trappola (/admin, /.env, ecc.)
-3. **application.properties** - Configurazione
+2. **CanaryController** - Endpoint trappola
+3. **TrafficSimulator** - Traffico realistico e simulazione attacchi
+4. **DatabaseSeeder** - Popolamento dati iniziale
+5. **application.properties** - Configurazione
 
-## 🕷️ Endpoint Trappola Canary
+---
+
+## Endpoint Trappola Canary
 
 I seguenti endpoint sono trappole che attivano la classificazione immediata della minaccia:
 
-- `/admin`, `/wp-admin` - Trappole pannello admin
-- `/.env`, `/.env.local` - Trappole file environment
-- `/config`, `/configuration` - Trappole file configurazione
-- `/api/internal` - Trappola API interna
-- `/.git`, `/.svn` - Trappole version control
-- `/backup`, `/*.bak` - Trappole file backup
-- `/*.sql`, `/dump.sql` - Trappole dump database
-- `/phpmyadmin` - Trappola PHPMyAdmin
+- /admin, /wp-admin
+- /.env
+- /config
+- /api/internal
+- /.git
+- /backup
 
-## 📡 Endpoint API
+---
+
+## Endpoint API
 
 ### API Dashboard
 
@@ -245,23 +272,18 @@ GET /api/dashboard/threats/last-hours     - Minacce in intervallo temporale
 GET /api/dashboard/stats/by-client-type   - Conteggio per tipo client
 GET /api/dashboard/stats/by-severity      - Conteggio per severità
 GET /api/dashboard/stats/top-ips          - IP attaccanti principali
+GET /api/dashboard/export/csv             - Esporta minacce in CSV
 GET /api/dashboard/health                 - Health check
 ```
 
-### API X Detector
+---
 
-```
-POST /api/x-detector/analyze/manual       - Analizza account X (input manuale)
-GET  /api/x-detector/health               - Health check
-GET  /api/x-detector/info                 - Informazioni sistema
-```
+## Configurazione
 
-## 🔧 Configurazione
-
-Modifica `honeypot/src/main/resources/application.properties`:
+Modifica honeypot/src/main/resources/application.properties:
 
 ```properties
-# Database (H2 per dev, PostgreSQL per prod)
+# Database (H2 for dev, PostgreSQL for prod)
 spring.datasource.url=jdbc:h2:mem:honeypotdb
 
 # Soglia rilevamento minacce
@@ -271,7 +293,9 @@ honeypot.threat.confidence-threshold=0.5
 honeypot.canary.enabled=true
 ```
 
-## 🧪 Testing
+---
+
+## Testing
 
 Esegui i test su tutti i moduli:
 
@@ -279,18 +303,22 @@ Esegui i test su tutti i moduli:
 mvn test
 ```
 
-## 📈 Segnali di Rilevamento
+---
+
+## Segnali di Rilevamento
 
 Il sistema analizza questi segnali comportamentali:
 
-- **Temporali**: Intervalli richieste, durata sessione
+- **Temporali**: Intervalli richieste, durata sessione, timing medio tra le richieste
 - **Header**: Pattern User-Agent, header Accept mancanti, ordine header
-- **Comportamentali**: Movimento mouse, esecuzione JavaScript, gestione cookie
-- **Navigazione**: Accesso diretto endpoint, referer mancante
-- **Contenuto**: Velocità invio form, attivazione trappole canary
-- **Network**: Reputazione IP, geolocalizzazione
+- **Comportamentali**: Esecuzione JavaScript, gestione cookie (ove disponibile)
+- **Navigazione**: Accesso diretto endpoint, referer mancante, profondità del path
+- **Contenuto**: Attivazione trappole canary, complessità query, ratio caratteri sospetti
+- **Network**: Analisi IP, tasso di richieste per minuto
 
-## 🛡️ Classificazione Minacce
+---
+
+## Classificazione Minacce
 
 ### Classificatore Basato su Regole
 
@@ -302,40 +330,55 @@ Utilizza euristiche per rilevare:
 - Accesso trappole canary
 - Pattern richieste sospettosamente veloci
 
-### Classificatore Isolation Forest
+### Classificatore Isolation Forest (Rilevamento Anomalie)
 
-Utilizza rilevamento anomalie statistiche per identificare pattern comportamentali inusuali.
+Layer di machine learning non supervisionato che:
+- Apprende i pattern di traffico normale
+- Rileva deviazioni (anomalie) senza conoscenza previa dei tipi di attacco
+- Utilizza 12 feature comportamentali incluse l'entropia del timing e la struttura dell'URI
 
 ### Classificatore Ensemble
 
-Combina più classificatori per un rilevamento robusto.
+Aggrega livelli di rilevamento multipli:
+- Combina Layer 1 (Regole) e Layer 2 (ML)
+- Risolve le discrepanze tra i classificatori
+- Implementa mitigazioni teoriche per il teorema "No Free Lunch"
 
-## 🤖 X Bot Detector
+---
 
-Modulo specializzato per rilevare bot e agenti AI su X (Twitter) con:
+## Rilevamento Bot su X
 
-- **5 Analizzatori**: Profile, Network, Temporal, Text, Behavior
-- **31 Segnali Comportamentali**: Pattern AI/LLM, metriche engagement, analisi temporale
-- **Modalità Input Manuale**: Funziona senza API key Twitter
-- **Predizioni Spiegabili**: Ogni classificazione include spiegazione dettagliata
+Modulo specializzato per rilevare bot e agenti AI su X (Twitter) con analisi comportamentale avanzata.
 
-### Esempio Richiesta X Detector
+### Caratteristiche
 
-```json
-{
-  "username": "example_bot",
-  "followersCount": 50,
-  "followingCount": 5000,
-  "tweetCount": 10000,
-  "defaultProfileImage": true,
-  "recentTweetTexts": [
-    "As an AI, I'm here to assist you.",
-    "Here are 5 ways to improve productivity..."
-  ]
-}
-```
+- **5 Analizzatori Indipendenti**: Profile, Network, Temporal, Text, Behavior
+- **Predizioni Spiegabili**: Ogni classificazione include spiegazione dettagliata e segnali attivati
+- **Pesi Configurabili**: Ogni analizzatore ha un peso regolabile nello score finale
+- **Modalità Input Manuale**: Funziona senza API key di Twitter
 
-## 📝 Esempio Rilevamento
+### Suddivisione Analizzatori
+
+| Analizzatore | Peso | Segnali Chiave |
+|--------------|------|----------------|
+| **ProfileAnalyzer** | 20% | Età account, pattern username, parole chiave AI in bio, immagine default |
+| **NetworkAnalyzer** | 25% | Rapporto follower/following, spam di follow, anomalie engagement |
+| **TemporalAnalyzer** | 25% | Frequenza post, intervalli regolari (CV), posting a raffica |
+| **TextAnalyzer** | 30% | Pattern AI/LLM, ripetizione testo, client di automazione, vocabolario |
+| **BehaviorAnalyzer** | 20% | Rapporto retweet, assenza risposte, client API, uniformità lingua |
+
+### Livelli di Classificazione
+
+| Range Score | Classificazione | Azione |
+|-------------|-----------------|---------|
+| < 0.3 | **PROBABILMENTE UMANO** | Consenti |
+| 0.3 - 0.6 | **INCERTO** | Monitora |
+| 0.6 - 0.8 | **PROBABILE BOT** | Revisiona |
+| > 0.8 | **BOT CONFERMATO** | Blocca |
+
+---
+
+## Esempio Rilevamento
 
 ```json
 {
@@ -354,7 +397,19 @@ Modulo specializzato per rilevare bot e agenti AI su X (Twitter) con:
 }
 ```
 
-## 🤝 Contribuire
+---
+
+## Roadmap
+
+I seguenti elementi sono pianificati per iterazioni future:
+
+- **Espansione della copertura degli endpoint canary** oltre la lista core attuale
+- **Segnali comportamentali più ricchi** (movimento mouse, fingerprinting JS avanzato)
+- **Profondità di analisi della sicurezza estesa** con scoring multi-stadio
+
+---
+
+## Contribuire
 
 I contributi sono benvenuti! Segui questi passaggi:
 
@@ -364,15 +419,18 @@ I contributi sono benvenuti! Segui questi passaggi:
 4. Aggiungi test
 5. Invia una pull request
 
-## 📄 Licenza
+---
+
+## Licenza
 
 Questo progetto è rilasciato sotto licenza MIT.
 
-## 👤 Autore
+---
+
+## Autore
 
 **Dania Ciampalini**
 
 ---
 
-⚠️ **Nota**: Questo è un sistema honeypot progettato per ricerca e monitoraggio della sicurezza. Distribuisci responsabilmente e assicura la conformità con le leggi e i regolamenti pertinenti.
-
+**Nota**: Questo è un sistema honeypot progettato per ricerca e monitoraggio della sicurezza. Distribuisci responsabilmente e assicura la conformità con le leggi e i regolamenti pertinenti.

@@ -48,7 +48,7 @@ class HttpServletSignalExtractorTest {
         @DisplayName("SessionId is set from parameter")
         void sessionIdSet() {
             RawRequestSignals signals = extractor.extractFromRequest(
-                    browserRequest(), "my-session-id", null);
+                    browserRequest(), "my-session-id", null, 1, 0.0);
             assertEquals("my-session-id", signals.getSessionId());
         }
 
@@ -57,7 +57,7 @@ class HttpServletSignalExtractorTest {
         void methodExtracted() {
             MockHttpServletRequest req = browserRequest();
             req.setMethod("POST");
-            RawRequestSignals signals = extractor.extractFromRequest(req, "s1", null);
+            RawRequestSignals signals = extractor.extractFromRequest(req, "s1", null, 1, 0.0);
             assertEquals("POST", signals.getMethod());
         }
 
@@ -65,7 +65,7 @@ class HttpServletSignalExtractorTest {
         @DisplayName("URI is extracted correctly")
         void uriExtracted() {
             MockHttpServletRequest req = new MockHttpServletRequest("GET", "/api/data");
-            RawRequestSignals signals = extractor.extractFromRequest(req, "s1", null);
+            RawRequestSignals signals = extractor.extractFromRequest(req, "s1", null, 1, 0.0);
             assertEquals("/api/data", signals.getUri());
         }
 
@@ -73,7 +73,7 @@ class HttpServletSignalExtractorTest {
         @DisplayName("User-Agent header is extracted")
         void userAgentExtracted() {
             RawRequestSignals signals = extractor.extractFromRequest(
-                    browserRequest(), "s1", null);
+                    browserRequest(), "s1", null, 1, 0.0);
             assertEquals("Mozilla/5.0 (Windows NT 10.0; Win64; x64)", signals.getUserAgent());
         }
 
@@ -81,7 +81,7 @@ class HttpServletSignalExtractorTest {
         @DisplayName("Accept header is extracted")
         void acceptHeaderExtracted() {
             RawRequestSignals signals = extractor.extractFromRequest(
-                    browserRequest(), "s1", null);
+                    browserRequest(), "s1", null, 1, 0.0);
             assertEquals("text/html,application/xhtml+xml", signals.getAcceptHeader());
         }
 
@@ -89,7 +89,7 @@ class HttpServletSignalExtractorTest {
         @DisplayName("Accept-Language header is extracted")
         void acceptLanguageExtracted() {
             RawRequestSignals signals = extractor.extractFromRequest(
-                    browserRequest(), "s1", null);
+                    browserRequest(), "s1", null, 1, 0.0);
             assertEquals("en-US,en;q=0.9", signals.getAcceptLanguage());
         }
 
@@ -98,7 +98,7 @@ class HttpServletSignalExtractorTest {
         void timestampSetCloseToNow() {
             Instant before = Instant.now().minusMillis(100);
             RawRequestSignals signals = extractor.extractFromRequest(
-                    browserRequest(), "s1", null);
+                    browserRequest(), "s1", null, 1, 0.0);
             Instant after = Instant.now().plusMillis(100);
             assertTrue(signals.getTimestamp().isAfter(before));
             assertTrue(signals.getTimestamp().isBefore(after));
@@ -110,7 +110,7 @@ class HttpServletSignalExtractorTest {
             MockHttpServletRequest req = browserRequest();
             req.setContentType("application/json");
             req.setContent("{\"key\":\"value\"}".getBytes());
-            RawRequestSignals signals = extractor.extractFromRequest(req, "s1", null);
+            RawRequestSignals signals = extractor.extractFromRequest(req, "s1", null, 1, 0.0);
             // MockHttpServletRequest sets content length from the content
             assertTrue(signals.getContentLength() >= 0);
         }
@@ -119,7 +119,7 @@ class HttpServletSignalExtractorTest {
         @DisplayName("Missing User-Agent header → userAgent is null")
         void missingUserAgentNull() {
             MockHttpServletRequest req = new MockHttpServletRequest("GET", "/");
-            RawRequestSignals signals = extractor.extractFromRequest(req, "s1", null);
+            RawRequestSignals signals = extractor.extractFromRequest(req, "s1", null, 1, 0.0);
             assertNull(signals.getUserAgent());
         }
 
@@ -127,7 +127,7 @@ class HttpServletSignalExtractorTest {
         @DisplayName("Missing Referer header → referer is null")
         void missingRefererNull() {
             RawRequestSignals signals = extractor.extractFromRequest(
-                    browserRequest(), "s1", null);
+                    browserRequest(), "s1", null, 1, 0.0);
             assertNull(signals.getReferer());
         }
 
@@ -136,7 +136,7 @@ class HttpServletSignalExtractorTest {
         void refererExtracted() {
             MockHttpServletRequest req = browserRequest();
             req.addHeader("Referer", "https://example.com/page");
-            RawRequestSignals signals = extractor.extractFromRequest(req, "s1", null);
+            RawRequestSignals signals = extractor.extractFromRequest(req, "s1", null, 1, 0.0);
             assertEquals("https://example.com/page", signals.getReferer());
         }
     }
@@ -152,7 +152,7 @@ class HttpServletSignalExtractorTest {
         void usesRemoteAddrDirectly() {
             MockHttpServletRequest req = browserRequest();
             req.setRemoteAddr("203.0.113.5");
-            RawRequestSignals signals = extractor.extractFromRequest(req, "s1", null);
+            RawRequestSignals signals = extractor.extractFromRequest(req, "s1", null, 1, 0.0);
             assertEquals("203.0.113.5", signals.getIpAddress());
         }
 
@@ -162,7 +162,7 @@ class HttpServletSignalExtractorTest {
             MockHttpServletRequest req = browserRequest();
             req.setRemoteAddr("10.0.0.1"); // internal proxy
             req.addHeader("X-Forwarded-For", "198.51.100.1, 10.0.0.1");
-            RawRequestSignals signals = extractor.extractFromRequest(req, "s1", null);
+            RawRequestSignals signals = extractor.extractFromRequest(req, "s1", null, 1, 0.0);
             assertEquals("198.51.100.1", signals.getIpAddress());
         }
 
@@ -171,7 +171,7 @@ class HttpServletSignalExtractorTest {
         void xForwardedForSingleIp() {
             MockHttpServletRequest req = browserRequest();
             req.addHeader("X-Forwarded-For", "198.51.100.42");
-            RawRequestSignals signals = extractor.extractFromRequest(req, "s1", null);
+            RawRequestSignals signals = extractor.extractFromRequest(req, "s1", null, 1, 0.0);
             assertEquals("198.51.100.42", signals.getIpAddress());
         }
 
@@ -180,7 +180,7 @@ class HttpServletSignalExtractorTest {
         void xRealIpUsedWhenNoXff() {
             MockHttpServletRequest req = browserRequest();
             req.addHeader("X-Real-IP", "198.51.100.99");
-            RawRequestSignals signals = extractor.extractFromRequest(req, "s1", null);
+            RawRequestSignals signals = extractor.extractFromRequest(req, "s1", null, 1, 0.0);
             assertEquals("198.51.100.99", signals.getIpAddress());
         }
 
@@ -190,7 +190,7 @@ class HttpServletSignalExtractorTest {
             MockHttpServletRequest req = browserRequest();
             req.addHeader("X-Forwarded-For", "198.51.100.1");
             req.addHeader("X-Real-IP", "198.51.100.99");
-            RawRequestSignals signals = extractor.extractFromRequest(req, "s1", null);
+            RawRequestSignals signals = extractor.extractFromRequest(req, "s1", null, 1, 0.0);
             assertEquals("198.51.100.1", signals.getIpAddress());
         }
     }
@@ -205,63 +205,63 @@ class HttpServletSignalExtractorTest {
         @DisplayName("/admin → canaryTrapTriggered=true")
         void adminIsCanary() {
             MockHttpServletRequest req = new MockHttpServletRequest("GET", "/admin");
-            assertTrue(extractor.extractFromRequest(req, "s1", null).isCanaryTrapTriggered());
+            assertTrue(extractor.extractFromRequest(req, "s1", null, 1, 0.0).isCanaryTrapTriggered());
         }
 
         @Test
         @DisplayName("/wp-admin → canaryTrapTriggered=true")
         void wpAdminIsCanary() {
             MockHttpServletRequest req = new MockHttpServletRequest("GET", "/wp-admin");
-            assertTrue(extractor.extractFromRequest(req, "s1", null).isCanaryTrapTriggered());
+            assertTrue(extractor.extractFromRequest(req, "s1", null, 1, 0.0).isCanaryTrapTriggered());
         }
 
         @Test
         @DisplayName("/.env → canaryTrapTriggered=true")
         void envIsCanary() {
             MockHttpServletRequest req = new MockHttpServletRequest("GET", "/.env");
-            assertTrue(extractor.extractFromRequest(req, "s1", null).isCanaryTrapTriggered());
+            assertTrue(extractor.extractFromRequest(req, "s1", null, 1, 0.0).isCanaryTrapTriggered());
         }
 
         @Test
         @DisplayName("/config → canaryTrapTriggered=true")
         void configIsCanary() {
             MockHttpServletRequest req = new MockHttpServletRequest("GET", "/config");
-            assertTrue(extractor.extractFromRequest(req, "s1", null).isCanaryTrapTriggered());
+            assertTrue(extractor.extractFromRequest(req, "s1", null, 1, 0.0).isCanaryTrapTriggered());
         }
 
         @Test
         @DisplayName("/.git → canaryTrapTriggered=true")
         void gitIsCanary() {
             MockHttpServletRequest req = new MockHttpServletRequest("GET", "/.git");
-            assertTrue(extractor.extractFromRequest(req, "s1", null).isCanaryTrapTriggered());
+            assertTrue(extractor.extractFromRequest(req, "s1", null, 1, 0.0).isCanaryTrapTriggered());
         }
 
         @Test
         @DisplayName("/backup → canaryTrapTriggered=true")
         void backupIsCanary() {
             MockHttpServletRequest req = new MockHttpServletRequest("GET", "/backup");
-            assertTrue(extractor.extractFromRequest(req, "s1", null).isCanaryTrapTriggered());
+            assertTrue(extractor.extractFromRequest(req, "s1", null, 1, 0.0).isCanaryTrapTriggered());
         }
 
         @Test
         @DisplayName("/admin/users (subpath) → canaryTrapTriggered=true (startsWith check)")
         void adminSubpathIsCanary() {
             MockHttpServletRequest req = new MockHttpServletRequest("GET", "/admin/users");
-            assertTrue(extractor.extractFromRequest(req, "s1", null).isCanaryTrapTriggered());
+            assertTrue(extractor.extractFromRequest(req, "s1", null, 1, 0.0).isCanaryTrapTriggered());
         }
 
         @Test
         @DisplayName("/home → canaryTrapTriggered=false")
         void homeIsNotCanary() {
             MockHttpServletRequest req = new MockHttpServletRequest("GET", "/home");
-            assertFalse(extractor.extractFromRequest(req, "s1", null).isCanaryTrapTriggered());
+            assertFalse(extractor.extractFromRequest(req, "s1", null, 1, 0.0).isCanaryTrapTriggered());
         }
 
         @Test
         @DisplayName("/api/v1/data → canaryTrapTriggered=false")
         void normalApiIsNotCanary() {
             MockHttpServletRequest req = new MockHttpServletRequest("GET", "/api/v1/data");
-            assertFalse(extractor.extractFromRequest(req, "s1", null).isCanaryTrapTriggered());
+            assertFalse(extractor.extractFromRequest(req, "s1", null, 1, 0.0).isCanaryTrapTriggered());
         }
     }
 
@@ -275,7 +275,7 @@ class HttpServletSignalExtractorTest {
         @DisplayName("First request (null previousRequest) → timeSincePreviousRequest is null")
         void firstRequestNullTiming() {
             RawRequestSignals signals = extractor.extractFromRequest(
-                    browserRequest(), "s1", null);
+                    browserRequest(), "s1", null, 1, 0.0);
             assertNull(signals.getTimeSincePreviousRequest());
         }
 
@@ -289,7 +289,7 @@ class HttpServletSignalExtractorTest {
                     .build();
 
             RawRequestSignals signals = extractor.extractFromRequest(
-                    browserRequest(), "s1", previous);
+                    browserRequest(), "s1", previous, 2, 200.0);
 
             assertNotNull(signals.getTimeSincePreviousRequest());
             assertTrue(signals.getTimeSincePreviousRequest() > 0,
@@ -305,7 +305,7 @@ class HttpServletSignalExtractorTest {
                     .build();
 
             RawRequestSignals signals = extractor.extractFromRequest(
-                    browserRequest(), "s1", previous);
+                    browserRequest(), "s1", previous, 2, null);
             assertNull(signals.getTimeSincePreviousRequest());
         }
     }
@@ -321,7 +321,7 @@ class HttpServletSignalExtractorTest {
         void xhrHeaderIndicatesJsEnabled() {
             MockHttpServletRequest req = browserRequest();
             req.addHeader("X-Requested-With", "XMLHttpRequest");
-            RawRequestSignals signals = extractor.extractFromRequest(req, "s1", null);
+            RawRequestSignals signals = extractor.extractFromRequest(req, "s1", null, 1, 0.0);
             assertEquals(Boolean.TRUE, signals.getJavascriptEnabled());
         }
 
@@ -329,7 +329,7 @@ class HttpServletSignalExtractorTest {
         @DisplayName("No JS-related headers → javascriptEnabled=null (unknown)")
         void noJsHeadersUnknown() {
             RawRequestSignals signals = extractor.extractFromRequest(
-                    browserRequest(), "s1", null);
+                    browserRequest(), "s1", null, 1, 0.0);
             assertNull(signals.getJavascriptEnabled());
         }
     }
@@ -348,7 +348,7 @@ class HttpServletSignalExtractorTest {
             req.addHeader("Accept", "application/json");
             req.addHeader("X-Custom-Header", "custom-value");
 
-            RawRequestSignals signals = extractor.extractFromRequest(req, "s1", null);
+            RawRequestSignals signals = extractor.extractFromRequest(req, "s1", null, 1, 0.0);
 
             assertNotNull(signals.getHeaders());
             assertEquals("TestAgent", signals.getHeaders().get("User-Agent"));
@@ -360,7 +360,7 @@ class HttpServletSignalExtractorTest {
         @DisplayName("Empty request has empty (not null) headers map")
         void emptyRequestEmptyHeaders() {
             MockHttpServletRequest req = new MockHttpServletRequest("GET", "/");
-            RawRequestSignals signals = extractor.extractFromRequest(req, "s1", null);
+            RawRequestSignals signals = extractor.extractFromRequest(req, "s1", null, 1, 0.0);
             assertNotNull(signals.getHeaders());
         }
     }
@@ -378,7 +378,7 @@ class HttpServletSignalExtractorTest {
             req.addParameter("q", "honeypot");
             req.addParameter("page", "2");
 
-            RawRequestSignals signals = extractor.extractFromRequest(req, "s1", null);
+            RawRequestSignals signals = extractor.extractFromRequest(req, "s1", null, 1, 0.0);
 
             assertNotNull(signals.getQueryParams());
             assertEquals("honeypot", signals.getQueryParams().get("q"));
@@ -389,7 +389,7 @@ class HttpServletSignalExtractorTest {
         @DisplayName("No query parameters → empty (not null) map")
         void noQueryParamsEmptyMap() {
             RawRequestSignals signals = extractor.extractFromRequest(
-                    browserRequest(), "s1", null);
+                    browserRequest(), "s1", null, 1, 0.0);
             assertNotNull(signals.getQueryParams());
         }
     }

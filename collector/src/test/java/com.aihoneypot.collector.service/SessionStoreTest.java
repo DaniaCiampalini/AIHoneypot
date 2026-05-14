@@ -295,6 +295,37 @@ class SessionStoreTest {
         }
     }
 
+    @Nested
+    @DisplayName("getAverageTimeBetweenRequests")
+    class AverageTime {
+
+        @Test
+        @DisplayName("Returns null for single request")
+        void singleRequestNullAvg() {
+            store.addRequest("s1", signal("s1"));
+            assertNull(store.getAverageTimeBetweenRequests("s1"));
+        }
+
+        @Test
+        @DisplayName("Returns correct average for multiple requests")
+        void multipleRequestsAvg() {
+            RawRequestSignals r1 = RawRequestSignals.builder()
+                    .sessionId("s1").timestamp(Instant.now()).build();
+            RawRequestSignals r2 = RawRequestSignals.builder()
+                    .sessionId("s1").timestamp(Instant.now())
+                    .timeSincePreviousRequest(100L).build();
+            RawRequestSignals r3 = RawRequestSignals.builder()
+                    .sessionId("s1").timestamp(Instant.now())
+                    .timeSincePreviousRequest(200L).build();
+
+            store.addRequest("s1", r1);
+            store.addRequest("s1", r2);
+            store.addRequest("s1", r3);
+
+            assertEquals(150.0, store.getAverageTimeBetweenRequests("s1"));
+        }
+    }
+
     // ── Thread safety ────────────────────────────────────────────────────────────
 
     @Nested

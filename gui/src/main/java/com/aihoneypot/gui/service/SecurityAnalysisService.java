@@ -141,20 +141,20 @@ public class SecurityAnalysisService {
 
             Certificate[] certs = conn.getServerCertificates();
             if (certs.length > 0 && certs[0] instanceof X509Certificate) {
-                X509Certificate cert = (X509Certificate) certs[0];
+                X509Certificate certificate = (X509Certificate) certs[0];
 
                 // Check expiration
-                Date notAfter = cert.getNotAfter();
+                Date notAfter = certificate.getNotAfter();
                 Date now = new Date();
                 boolean expired = notAfter.before(now);
 
                 result.put("valid", !expired);
-                result.put("issuer", cert.getIssuerDN().getName());
+                result.put("issuer", certificate.getIssuerX500Principal().getName());
                 result.put("expires", notAfter.toString());
                 result.put("expired", expired);
 
                 // Check if self-signed
-                boolean selfSigned = cert.getIssuerDN().equals(cert.getSubjectDN());
+                boolean selfSigned = certificate.getIssuerX500Principal().equals(certificate.getSubjectX500Principal());
                 result.put("self_signed", selfSigned);
             }
 

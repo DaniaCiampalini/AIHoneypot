@@ -6,7 +6,7 @@ import com.aihoneypot.dashboard.dto.ThreatSessionDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
+import org.springframework.core.ParameterizedTypeReference;
 
 import java.util.List;
 import java.util.Map;
@@ -37,7 +37,7 @@ public class DashboardApiService {
             return webClient.get()
                     .uri("/api/dashboard/stats")
                     .retrieve()
-                    .bodyToMono(Map.class)
+                    .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>(){})
                     .block();
         } catch (Exception e) {
             System.err.println("Error fetching statistics: " + e.getMessage());
@@ -93,7 +93,7 @@ public class DashboardApiService {
             return webClient.get()
                     .uri("/api/dashboard/stats/by-client-type")
                     .retrieve()
-                    .bodyToMono(Map.class)
+                    .bodyToMono(new ParameterizedTypeReference<Map<String, Long>>(){})
                     .block();
         } catch (Exception e) {
             System.err.println("Error fetching client type stats: " + e.getMessage());
@@ -109,7 +109,7 @@ public class DashboardApiService {
             return webClient.get()
                     .uri("/api/dashboard/stats/by-severity")
                     .retrieve()
-                    .bodyToMono(Map.class)
+                    .bodyToMono(new ParameterizedTypeReference<Map<String, Long>>(){})
                     .block();
         } catch (Exception e) {
             System.err.println("Error fetching severity stats: " + e.getMessage());
@@ -120,21 +120,19 @@ public class DashboardApiService {
     /**
      * Get top attacking IPs.
      */
-    @SuppressWarnings("unchecked")
     public List<Map<String, Object>> getTopAttackingIPs(int limit) {
         try {
-            List<Map> rawList = webClient.get()
+            List<Map<String, Object>> rawList = webClient.get()
                     .uri(uriBuilder -> uriBuilder
                             .path("/api/dashboard/stats/top-ips")
                             .queryParam("limit", limit)
                             .build())
                     .retrieve()
-                    .bodyToFlux(Map.class)
+                    .bodyToFlux(new ParameterizedTypeReference<Map<String, Object>>(){})
                     .collectList()
                     .block();
 
-            // Convert to properly typed list
-            return (List<Map<String, Object>>) (List<?>) rawList;
+            return rawList != null ? rawList : List.of();
         } catch (Exception e) {
             System.err.println("Error fetching top IPs: " + e.getMessage());
             return List.of();
@@ -149,7 +147,7 @@ public class DashboardApiService {
             Map<String, String> response = webClient.get()
                     .uri("/api/dashboard/health")
                     .retrieve()
-                    .bodyToMono(Map.class)
+                    .bodyToMono(new ParameterizedTypeReference<Map<String, String>>(){})
                     .block();
             return response != null && "UP".equals(response.get("status"));
         } catch (Exception e) {
@@ -161,4 +159,3 @@ public class DashboardApiService {
         return baseUrl;
     }
 }
-

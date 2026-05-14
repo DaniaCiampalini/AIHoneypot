@@ -23,6 +23,10 @@
             <groupId>com.aihoneypot</groupId>
             <artifactId>core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.aihoneypot</groupId>
+            <artifactId>analyzer</artifactId>
+        </dependency>
 
         <!-- Spring Web -->
         <dependency>

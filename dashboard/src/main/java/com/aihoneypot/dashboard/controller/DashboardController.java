@@ -91,6 +91,30 @@ public class DashboardController {
     }
 
     /**
+     * Export threat data as CSV for thesis evaluation.
+     */
+    @GetMapping("/api/dashboard/export/csv")
+    @Operation(summary = "Export threats to CSV", description = "Exports all threat data in CSV format for experimental analysis")
+    public ResponseEntity<String> exportToCSV() {
+        StringBuilder csv = new StringBuilder();
+        csv.append("id,sessionId,ipAddress,timestamp,clientType,confidence,isThreat,ruleBased,mlBased,discrepancy,explanation\n");
+        
+        List<ThreatSessionDTO> threats = dashboardService.getRecentThreats(1000);
+        for (ThreatSessionDTO t : threats) {
+            csv.append(String.format("%d,%s,%s,%s,%s,%.2f,%b,%b,%b,%b,\"%s\"\n",
+                t.getId(), t.getSessionId(), t.getIpAddress(), t.getTimestamp(),
+                t.getClientType(), t.getConfidence(), t.getIsThreat(),
+                t.getRuleBasedThreat(), t.getMlThreat(), t.getDiscrepancy(),
+                t.getExplanation().replace("\"", "'")));
+        }
+        
+        return ResponseEntity.ok()
+                .header("Content-Type", "text/csv")
+                .header("Content-Disposition", "attachment; filename=threat_experiments.csv")
+                .body(csv.toString());
+    }
+
+    /**
      * Health check endpoint.
      */
     @GetMapping("/api/dashboard/health")

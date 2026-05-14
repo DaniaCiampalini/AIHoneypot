@@ -109,6 +109,21 @@ public class ThreatSession {
     private String classifierName;
 
     /**
+     * Comparison data for thesis: Rule-based result
+     */
+    private Boolean ruleBasedThreat;
+
+    /**
+     * Comparison data for thesis: ML result
+     */
+    private Boolean mlThreat;
+
+    /**
+     * Comparison data for thesis: Discrepancy detected
+     */
+    private Boolean discrepancy;
+
+    /**
      * Whether a canary trap was triggered
      */
     private Boolean canaryTrapTriggered;

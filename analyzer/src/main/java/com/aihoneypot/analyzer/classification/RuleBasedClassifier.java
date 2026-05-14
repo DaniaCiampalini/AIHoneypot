@@ -14,7 +14,7 @@ import java.util.Map;
  * This is the fastest classifier and serves as a baseline.
  */
 @Slf4j
-@Component
+@Component("ruleBasedClassifier")
 public class RuleBasedClassifier implements ThreatClassifier {
 
     private static final String CLASSIFIER_NAME = "RuleBased";

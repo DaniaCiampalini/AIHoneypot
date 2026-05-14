@@ -46,14 +46,18 @@ public class SignalCollectorFilter implements Filter {
     private void collectSignals(HttpServletRequest request) {
         String sessionId = getOrCreateSessionId(request);
 
-        // Get previous request for timing analysis
+        // Get previous request and session stats for enhanced analysis
         RawRequestSignals previousRequest = sessionStore.getPreviousRequest(sessionId);
+        int requestCount = sessionStore.getRequestCount(sessionId) + 1; // +1 for current
+        Double avgTime = sessionStore.getAverageTimeBetweenRequests(sessionId);
 
         // Extract signals from current request
         RawRequestSignals signals = signalExtractor.extractFromRequest(
             request,
             sessionId,
-            previousRequest
+            previousRequest,
+            requestCount,
+            avgTime
         );
 
         // Store in session store

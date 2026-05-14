@@ -84,5 +84,20 @@ public interface ThreatSessionRepository extends JpaRepository<ThreatSession, Lo
      */
     @Query("SELECT t.ipAddress, COUNT(t) FROM ThreatSession t WHERE t.isThreat = true GROUP BY t.ipAddress ORDER BY COUNT(t) DESC")
     List<Object[]> findTopAttackingIps();
+
+    /**
+     * Count sessions with discrepancy for thesis evaluation.
+     */
+    long countByDiscrepancyTrue();
+
+    /**
+     * Count sessions detected only by Rule-based layer.
+     */
+    long countByRuleBasedThreatTrueAndMlThreatFalse();
+
+    /**
+     * Count sessions detected only by ML layer.
+     */
+    long countByMlThreatTrueAndRuleBasedThreatFalse();
 }
 

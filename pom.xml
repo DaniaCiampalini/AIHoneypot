@@ -136,10 +136,11 @@
             <!-- ── Weka: anomaly detection / ML ─────────────────────── -->
             <!-- Used for Isolation Forest and statistical scoring -->
             <dependency>
-                <groupId>nz.ac.waikato.cms.weka</groupId>
+                <groupId>nz.ac.weka</groupId>
                 <artifactId>weka-stable</artifactId>
-                <version>${weka.version}</version>
+                <version>3.8.6</version>
             </dependency>
+
 
             <!-- ── Database ─────────────────────────────────────────── -->
             <dependency>

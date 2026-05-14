@@ -8,6 +8,7 @@ import com.aihoneypot.analyzer.repository.ThreatSessionRepository;
 import com.aihoneypot.analyzer.entity.ThreatSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -21,11 +22,23 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class TrafficSimulator {
 
-    private final ThreatClassifier classifier;
+    private final ThreatClassifier ruleBasedClassifier;
+    private final ThreatClassifier isolationForestAnomalyDetector;
+    private final ThreatClassifier ensembleClassifier;
     private final ThreatSessionRepository threatRepository;
+
+    public TrafficSimulator(
+            @Qualifier("ruleBasedClassifier") ThreatClassifier ruleBasedClassifier,
+            @Qualifier("isolationForestAnomalyDetector") ThreatClassifier isolationForestAnomalyDetector,
+            @Qualifier("ensembleClassifier") ThreatClassifier ensembleClassifier,
+            ThreatSessionRepository threatRepository) {
+        this.ruleBasedClassifier = ruleBasedClassifier;
+        this.isolationForestAnomalyDetector = isolationForestAnomalyDetector;
+        this.ensembleClassifier = ensembleClassifier;
+        this.threatRepository = threatRepository;
+    }
 
     private static final String[] LEGITIMATE_IPS = {
         "203.0.113.1", "203.0.113.45", "203.0.113.89", "203.0.113.123"
@@ -83,6 +96,14 @@ public class TrafficSimulator {
     };
 
     /**
+     * Paths per anomalie ignote (scenari tesi)
+     */
+    private static final String[] UNKNOWN_ANOMALY_PATHS = {
+        "/api/v1/debug/dump", "/internal/metrics", "/?debug=true&env=prod",
+        "/cgi-bin/config.sh", "/server-status", "/portal/auth?redirect=http://malicious.com"
+    };
+
+    /**
      * Generates continuous realistic traffic every 5 seconds
      */
     @Scheduled(fixedRate = 5000)
@@ -98,26 +119,65 @@ public class TrafficSimulator {
         }
     }
 
-    /**
-     * Generates attack simulation every 30 seconds
-     */
     @Scheduled(fixedRate = 30000)
     public void generateAttackSimulation() {
         try {
             double random = Math.random();
 
-            if (random < 0.3) {
+            if (random < 0.2) {
                 simulateCanaryTrapAccess();
-            } else if (random < 0.5) {
+            } else if (random < 0.4) {
                 simulateBotScan();
-            } else if (random < 0.7) {
-                simulateAIAgentProbing();
-            } else {
+            } else if (random < 0.6) {
                 simulateSQLInjectionAttempt();
+            } else if (random < 0.8) {
+                simulateUnknownAnomaly(); // Nuovo scenario per la tesi
+            } else {
+                simulateAdversarialEvasion(); // Nuovo scenario: Adversarial Evasion
             }
         } catch (Exception e) {
             log.error("Error generating attack: {}", e.getMessage());
         }
+    }
+
+    /**
+     * Simula un attacco evasivo (Capitolo 1.4 della tesi).
+     * L'attaccante usa User-Agent legittimo, timing umano (random delay) e URI apparentemente innocui,
+     * cercando di mimare il traffico normale per evadere sia le regole che l'anomaly detection statistica.
+     */
+    private void simulateAdversarialEvasion() {
+        RawRequestSignals signals = RawRequestSignals.builder()
+                .sessionId(UUID.randomUUID().toString())
+                .timestamp(Instant.now())
+                .ipAddress(randomFrom(MALICIOUS_IPS))
+                .method("GET")
+                .uri("/products?search=item&sort=price") // URI comune
+                .userAgent(randomFrom(LEGITIMATE_AGENTS))
+                .timeSincePreviousRequest(2500L + (long)(Math.random() * 5000)) // Timing umano
+                .headers(createHeaders("text/html", "en-US"))
+                .build();
+
+        log.warn("🕵️ Adversarial evasion attempt simulated (Thesis Scenario)");
+        processAndSave(signals, ClientType.UNKNOWN, Severity.HIGH);
+    }
+
+    /**
+     * Simula un'anomalia ignota che il Rule-based non rileva ma IF sì.
+     * Pattern: parametri inusuali, path non comuni, timing normale per evadere euristiche.
+     */
+    private void simulateUnknownAnomaly() {
+        RawRequestSignals signals = RawRequestSignals.builder()
+                .sessionId(UUID.randomUUID().toString())
+                .timestamp(Instant.now())
+                .ipAddress(randomFrom(MALICIOUS_IPS))
+                .method("GET")
+                .uri(randomFrom(UNKNOWN_ANOMALY_PATHS))
+                .userAgent(randomFrom(LEGITIMATE_AGENTS)) // User agent pulito per evadere Rule-based
+                .headers(createHeaders("application/json", "en"))
+                .build();
+
+        log.warn("🧪 Unknown anomaly simulated (Thesis Scenario)");
+        processAndSave(signals, ClientType.UNKNOWN, Severity.MEDIUM);
     }
 
     /**
@@ -288,24 +348,39 @@ public class TrafficSimulator {
         processAndSave(signals, ClientType.SECURITY_SCANNER, Severity.CRITICAL);
     }
 
-    private void processAndSave(RawRequestSignals signals, ClientType type, Severity severity) {
+    private void processAndSave(RawRequestSignals signals, ClientType expectedType, Severity severity) {
         try {
-            // Classify the request
-            var result = classifier.classify(signals);
+            // Esegue i classificatori individuali e l'ensemble (Scenario Tesi: Layer 1, 2, 3)
+            var ruleResult = ruleBasedClassifier.classify(signals);
+            var mlResult = isolationForestAnomalyDetector.classify(signals);
+            var ensembleResult = ensembleClassifier.classify(signals);
 
-            // Create threat session
+            // Log del confronto (cruciale per Capitolo 3 della tesi)
+            if (ruleResult.isThreat() != mlResult.isThreat()) {
+                log.info("📊 DISCORDANZA RILEVATA - Session: {} - Rule: {} | ML: {}", 
+                    signals.getSessionId(), ruleResult.isThreat(), mlResult.isThreat());
+            }
+
+            // Create threat session using ensemble results as primary
             ThreatSession session = new ThreatSession();
             session.setSessionId(signals.getSessionId());
             session.setIpAddress(signals.getIpAddress());
-            session.setClientType(type);
+            session.setClientType(expectedType);
             session.setSeverity(severity);
-            session.setConfidence(result.getConfidence());
-            session.setExplanation(result.getExplanation());
+            session.setConfidence(ensembleResult.getConfidence());
+            session.setExplanation(ensembleResult.getExplanation());
             session.setTimestamp(signals.getTimestamp());
             session.setRequestCount(1);
-            session.setIsThreat(severity == Severity.HIGH || severity == Severity.CRITICAL);
+            session.setIsThreat(ensembleResult.isThreat());
             session.setUserAgent(signals.getUserAgent());
             session.setFirstUri(signals.getUri());
+            
+            // Thesis specific data for evaluation
+            session.setRuleBasedThreat(ruleResult.isThreat());
+            session.setMlThreat(mlResult.isThreat());
+            session.setDiscrepancy(ruleResult.isThreat() != mlResult.isThreat());
+            session.setCanaryTrapTriggered(signals.isCanaryTrapTriggered());
+            session.setClassifierName(ensembleResult.getClassifierName());
 
             // Save to database
             threatRepository.save(session);

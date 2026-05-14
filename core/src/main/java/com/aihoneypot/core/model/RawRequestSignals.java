@@ -96,6 +96,16 @@ public class RawRequestSignals {
     private Boolean javascriptEnabled;
 
     /**
+     * Number of requests in current session
+     */
+    private Integer sessionRequestCount;
+
+    /**
+     * Average time between requests in current session (ms)
+     */
+    private Double averageTimeBetweenRequests;
+
+    /**
      * Request body size in bytes
      */
     private long contentLength;

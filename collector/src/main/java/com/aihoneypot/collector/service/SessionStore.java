@@ -80,6 +80,29 @@ public class SessionStore {
     }
 
     /**
+     * Get average time between requests for a session.
+     */
+    public Double getAverageTimeBetweenRequests(String sessionId) {
+        SessionData data = sessions.get(sessionId);
+        if (data == null || data.requests.size() < 2) {
+            return null;
+        }
+        
+        long totalTime = 0;
+        int intervals = 0;
+        
+        for (int i = 1; i < data.requests.size(); i++) {
+            Long diff = data.requests.get(i).getTimeSincePreviousRequest();
+            if (diff != null) {
+                totalTime += diff;
+                intervals++;
+            }
+        }
+        
+        return intervals > 0 ? (double) totalTime / intervals : null;
+    }
+
+    /**
      * Remove a session from the store.
      *
      * @param sessionId The session identifier

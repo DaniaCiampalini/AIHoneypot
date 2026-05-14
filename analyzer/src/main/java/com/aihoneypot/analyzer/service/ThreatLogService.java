@@ -53,6 +53,9 @@ public class ThreatLogService {
             .requestCount(1)
             .explanation(result.getExplanation())
             .classifierName(result.getClassifierName())
+            .ruleBasedThreat((Boolean) result.getTriggeredFeatures().get("rule_threat"))
+            .mlThreat((Boolean) result.getTriggeredFeatures().get("ml_threat"))
+            .discrepancy(!(result.getTriggeredFeatures().get("rule_threat").equals(result.getTriggeredFeatures().get("ml_threat"))))
             .canaryTrapTriggered(signals.isCanaryTrapTriggered())
             .build();
 

@@ -45,9 +45,20 @@ A sophisticated honeypot system for detecting and classifying AI agents, bots, a
 
 - **🔍 Behavioral Fingerprinting**: Analyzes HTTP request patterns to distinguish humans from bots
 
-- **🧠 Threat Classification (Rule-Based)**:
-  - Heuristic detection based on headers, timing, and canary access
-  - AI agent, bot scraper, and security scanner identification
+## 🧠 Threat Classification
+- **Layer 1: Rule-Based Classifier**: Heuristic detection based on headers, timing, and canary access (Decidibile per costruzione).
+- **Layer 2: Isolation Forest Anomaly Detection**: Unsupervised ML for detecting unknown attack patterns and distribution shifts (Caso di studio tesi).
+- **Ensemble Detection**: Integration of rule-based and ML approaches to overcome individual theoretical limits (No Free Lunch theorem).
+
+---
+
+## 🎓 Tesi: Limiti teorici dei sistemi ML per la security
+Questo progetto è strutturato come caso di studio per la tesi sui limiti della rilevazione automatica.
+- **Scenari di Test**:
+  1. **Pattern Noti**: Efficacia del Rule-Based Classifier.
+  2. **Anomalie Ignoto**: Efficacia dell'Isolation Forest su zero-day.
+  3. **Traffico Borderline**: Analisi dei falsi positivi/negativi e limiti del PAC-learning.
+- **Integrazione Weka**: Utilizzo del package `isolationForest` per l'analisi statistica del traffico.
 
 - **🐦 X (Twitter) Bot Detection**: Specialized module for detecting bots and AI agents on social media
   - Profile analysis (age, username patterns, bio detection)

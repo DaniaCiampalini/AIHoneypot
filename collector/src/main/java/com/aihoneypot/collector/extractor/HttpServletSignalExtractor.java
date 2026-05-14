@@ -31,7 +31,9 @@ public class HttpServletSignalExtractor {
      */
     public RawRequestSignals extractFromRequest(HttpServletRequest request,
                                                  String sessionId,
-                                                 RawRequestSignals previousRequest) {
+                                                 RawRequestSignals previousRequest,
+                                                 int sessionRequestCount,
+                                                 Double avgTime) {
         Instant now = Instant.now();
 
         return RawRequestSignals.builder()
@@ -48,6 +50,8 @@ public class HttpServletSignalExtractor {
             .cookies(extractCookies(request))
             .queryParams(extractQueryParams(request))
             .timeSincePreviousRequest(calculateTimeSincePrevious(previousRequest, now))
+            .sessionRequestCount(sessionRequestCount)
+            .averageTimeBetweenRequests(avgTime)
             .canaryTrapTriggered(isCanaryPath(request.getRequestURI()))
             .javascriptEnabled(checkJavaScriptEnabled(request))
             .contentLength(request.getContentLengthLong())

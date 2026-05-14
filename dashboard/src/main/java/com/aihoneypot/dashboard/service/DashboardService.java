@@ -49,6 +49,11 @@ public class DashboardService {
         stats.put("bySeverity", getThreatCountBySeverity());
         stats.put("byClientType", getThreatCountByClientType());
 
+        // Comparison stats for thesis
+        stats.put("discrepancyCount", repository.countByDiscrepancyTrue());
+        stats.put("ruleBasedOnly", repository.countByRuleBasedThreatTrueAndMlThreatFalse());
+        stats.put("mlOnly", repository.countByMlThreatTrueAndRuleBasedThreatFalse());
+
         // Canary trap hits
         stats.put("canaryTrapHits", repository.findByCanaryTrapTriggeredTrue().size());
 
@@ -137,6 +142,9 @@ public class DashboardService {
             .firstUri(entity.getFirstUri())
             .requestCount(entity.getRequestCount())
             .explanation(entity.getExplanation())
+            .ruleBasedThreat(entity.getRuleBasedThreat())
+            .mlThreat(entity.getMlThreat())
+            .discrepancy(entity.getDiscrepancy())
             .canaryTrapTriggered(entity.getCanaryTrapTriggered())
             .build();
     }

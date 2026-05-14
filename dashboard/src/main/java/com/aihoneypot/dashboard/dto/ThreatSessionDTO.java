@@ -29,6 +29,9 @@ public class ThreatSessionDTO {
     private String firstUri;
     private Integer requestCount;
     private String explanation;
+    private Boolean ruleBasedThreat;
+    private Boolean mlThreat;
+    private Boolean discrepancy;
     private Boolean canaryTrapTriggered;
 }
 

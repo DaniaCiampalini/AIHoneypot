@@ -30,8 +30,6 @@
         <module>collector</module>
         <module>analyzer</module>
         <module>dashboard</module>
-        <module>x-detector</module>
-        <module>gui</module>
         <module>honeypot</module>
     </modules>
 
@@ -94,11 +92,7 @@
                 <artifactId>dashboard</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <dependency>
-                <groupId>com.aihoneypot</groupId>
-                <artifactId>x-detector</artifactId>
-                <version>${project.version}</version>
-            </dependency>
+
 
             <!-- ── Spring Boot starters ────────────────────────────── -->
             <dependency>

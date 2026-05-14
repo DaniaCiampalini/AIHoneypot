@@ -35,10 +35,7 @@
             <groupId>com.aihoneypot</groupId>
             <artifactId>dashboard</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.aihoneypot</groupId>
-            <artifactId>x-detector</artifactId>
-        </dependency>
+
 
         <!-- Spring Boot starters -->
         <dependency>

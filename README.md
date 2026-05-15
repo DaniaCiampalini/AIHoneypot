@@ -37,33 +37,39 @@ A sophisticated honeypot system for detecting and classifying AI agents, bots, a
 
 ---
 
-## Thesis: Theoretical limits of ML systems for security
+## Multi-Layer Threat Classification
 
-This project is structured as a study case for a thesis on automated detection limits.
-- **Test Scenarios**:
-  1. **Known Patterns**: Effectiveness of the Rule-Based Classifier.
-  2. **Unknown Anomalies**: Effectiveness of the Isolation Forest on zero-day attacks.
-  3. **Borderline Traffic**: Analysis of false positives/negatives and PAC-learning limits.
-- **Weka Integration**: Use of the isolationForest package for statistical traffic analysis.
+AIHoneypot uses a two-layer classification architecture that reflects a deliberate
+design choice: no single classifier is sufficient for robust threat detection.
+
+- **Layer 1 — Rule-Based Classifier**: Heuristic detection based on known patterns
+  (User-Agent signatures, missing headers, timing anomalies). Fast, interpretable,
+  and effective against known threats. Structurally blind to unknown patterns.
+
+- **Layer 2 — Isolation Forest (Weka)**: Statistical anomaly detection on behavioral
+  feature vectors. Operates without predefined rules, identifying sessions that
+  deviate significantly from the baseline — including novel attack patterns not
+  covered by Layer 1.
 
 - **Canary Traps**: Decoy endpoints that no legitimate user should access
-  - /admin, /wp-admin
-  - /.env
-  - /config
-  - /api/internal
-  - /.git
-  - /backup
-  - Automatic CRITICAL severity on access
+    - `/admin`, `/wp-admin`
+    - `/.env`
+    - `/config`
+    - `/api/internal`
+    - `/.git`
+    - `/backup`
+    - Automatic CRITICAL severity on access
 
-- **Real-time Threat Logging**: Persists threat sessions to H2 database
+- **Real-time Threat Logging**: Persists threat sessions to H2/PostgreSQL database
 
 - **REST API Dashboard**: Monitor and analyze detected threats via HTTP endpoints
-  - CSV Export: Export data for experimental analysis and thesis evaluation
-  - Stats Comparative: Statistics on discrepancies between Rule-based and ML layers
+    - Comparative statistics between Rule-Based and Isolation Forest classifications
+    - CSV export for offline analysis
+    - Threat breakdown by client type, severity, and time range
 
 - **Session Tracking**: Correlates multiple requests from the same session
-  - Advanced Feature Engineering: Tracking request rates, average timing, and URI structural patterns
-
+    - Feature engineering: request rate, inter-request timing, URI structural patterns,
+      header completeness score
 ---
 
 ## Architecture

@@ -1,7 +1,7 @@
 
 # AIHoneypot - AI Agent Detection System
 
-A sophisticated honeypot system for detecting and classifying AI agents, bots, and automated HTTP clients using behavioral fingerprinting and rule-based heuristics.
+A sophisticated honeypot system for detecting and classifying AI agents, bots, and automated HTTP clients using behavioral fingerprinting and machine learning.
 
 ---
 
@@ -11,6 +11,21 @@ A sophisticated honeypot system for detecting and classifying AI agents, bots, a
 - [Italiano](docs/README_IT.md)
 - [Español](docs/README_ES.md)
 - [Deutsch](docs/README_DE.md)
+
+---
+
+## What is a Honeypot?
+
+A honeypot is a security tool designed to attract and detect attackers and unauthorized access attempts. Think of it like a decoy system that looks valuable to attackers but is actually isolated and monitored. When someone tries to break in or access forbidden areas, the honeypot records exactly what they did. This helps security professionals understand attack patterns and improve their defenses.
+
+## What is Behavioral Fingerprinting?
+
+Behavioral fingerprinting is the process of identifying who or what is making requests to your system by analyzing *how* they interact with it, rather than just *what* they request. For example:
+- Humans browse inconsistently and slowly; bots make rapid, repetitive requests
+- Real browsers send specific headers; scrapers often omit them
+- Humans visit pages in a logical flow; attackers probe for known vulnerabilities in a systematic pattern
+
+By collecting these behavioral signals, AIHoneypot can distinguish between legitimate users, AI agents, bots, and security scanners.
 
 ---
 
@@ -29,47 +44,70 @@ A sophisticated honeypot system for detecting and classifying AI agents, bots, a
 
 - **Behavioral Fingerprinting**: Analyzes HTTP request patterns to distinguish humans from bots
 
-## Threat Classification
+- **Real-time Threat Logging**: Persists threat sessions to H2/PostgreSQL database
 
-- **Layer 1: Rule-Based Classifier**: Heuristic detection based on headers, timing, and canary access (Decidable by construction).
-- **Layer 2: Isolation Forest Anomaly Detection**: Unsupervised ML for detecting unknown attack patterns and distribution shifts (Thesis study case).
-- **Layer 3: Ensemble Detection**: Integration of rule-based and ML approaches to overcome individual theoretical limits (No Free Lunch theorem).
+- **REST API Dashboard**: Monitor and analyze detected threats via HTTP endpoints
+  - Comparative statistics between rule-based and machine learning classifications
+  - CSV export for offline analysis
+  - Threat breakdown by client type, severity, and time range
+
+- **Session Tracking**: Correlates multiple requests from the same session
+  - Feature engineering: request rate, inter-request timing, URI structural patterns, header completeness score
 
 ---
 
 ## Multi-Layer Threat Classification
 
-AIHoneypot uses a two-layer classification architecture that reflects a deliberate
-design choice: no single classifier is sufficient for robust threat detection.
+AIHoneypot uses a two-layer classification architecture to detect threats with high accuracy:
 
-- **Layer 1 — Rule-Based Classifier**: Heuristic detection based on known patterns
-  (User-Agent signatures, missing headers, timing anomalies). Fast, interpretable,
-  and effective against known threats. Structurally blind to unknown patterns.
+### Layer 1: Rule-Based Classifier
 
-- **Layer 2 — Isolation Forest (Weka)**: Statistical anomaly detection on behavioral
-  feature vectors. Operates without predefined rules, identifying sessions that
-  deviate significantly from the baseline — including novel attack patterns not
-  covered by Layer 1.
+This layer uses predefined rules (heuristics) to detect known threats. It's like having an expert security analyst who knows all the telltale signs of an attack.
 
-- **Canary Traps**: Decoy endpoints that no legitimate user should access
-    - `/admin`, `/wp-admin`
-    - `/.env`
-    - `/config`
-    - `/api/internal`
-    - `/.git`
-    - `/backup`
-    - Automatic CRITICAL severity on access
+**How it works:**
+- Detects known bot signatures (User-Agent patterns)
+- Identifies missing HTTP headers (real browsers always include certain headers)
+- Recognizes AI agent patterns (e.g., GPT, Claude, LangChain)
+- Spots security scanner tools (e.g., Nikto, Burp)
+- Triggers on suspicious timing patterns (requests too fast to be human)
+- Detects access to canary traps (decoy endpoints)
 
-- **Real-time Threat Logging**: Persists threat sessions to H2/PostgreSQL database
+**Advantages:** Fast, interpretable, reliable for known threats
+**Limitations:** Cannot detect completely new attack patterns
 
-- **REST API Dashboard**: Monitor and analyze detected threats via HTTP endpoints
-    - Comparative statistics between Rule-Based and Isolation Forest classifications
-    - CSV export for offline analysis
-    - Threat breakdown by client type, severity, and time range
+### Layer 2: Isolation Forest (Machine Learning Anomaly Detection)
 
-- **Session Tracking**: Correlates multiple requests from the same session
-    - Feature engineering: request rate, inter-request timing, URI structural patterns,
-      header completeness score
+This layer uses unsupervised machine learning to detect *unusual* behavior without requiring predefined rules. Think of it as learning what "normal" traffic looks like, then flagging anything that deviates significantly.
+
+**How it works:**
+- Analyzes 12 behavioral features extracted from each request
+- Learns the baseline patterns from normal traffic
+- Identifies sessions that deviate significantly from the baseline
+- Can detect novel attacks not covered by Layer 1 rules
+- Operates without needing examples of every possible attack type
+
+**Advantages:** Detects unknown attack patterns, adapts to new threats
+**Limitations:** Less interpretable than rules (harder to explain *why* something was flagged)
+
+### Layer 3: Ensemble Integration
+
+Combines both layers to overcome individual limitations. If one classifier might miss an attack, the other likely won't.
+
+---
+
+## Canary Traps
+
+Canary traps are decoy endpoints that no legitimate user should ever access. They serve as tripwires that immediately flag suspicious activity:
+
+- `/admin`, `/wp-admin` — Admin panels
+- `/.env` — Configuration files
+- `/config` — Settings
+- `/api/internal` — Internal APIs
+- `/.git` — Version control
+- `/backup` — Backup files
+
+Accessing any canary trap automatically results in a CRITICAL severity threat classification, because legitimate users have no reason to look for these.
+
 ---
 
 ## Architecture
@@ -81,7 +119,7 @@ AIHoneypot/
 ├── docs/              # Translated README files
 ├── scripts/           # Startup shell scripts
 ├── core/              # Domain models, interfaces, exceptions
-├── collector/         # Signal collection layer (servlet filters and IF detector)
+├── collector/         # Signal collection layer (servlet filters and ML detector)
 ├── analyzer/          # Threat classification engine (Rules and Ensemble)
 ├── dashboard/         # REST API and statistics
 └── honeypot/          # Main Spring Boot application + canary traps + traffic simulator
@@ -90,8 +128,8 @@ AIHoneypot/
 ### Technology Stack
 
 - **Backend**: Spring Boot 3.2.2, Java 17
-- **Database**: H2 (in-memory)
-- **ML/AI**: Weka Isolation Forest, Rule-based heuristics, Ensemble methods
+- **Database**: H2 (in-memory) or PostgreSQL
+- **Machine Learning**: Weka Isolation Forest
 - **Build**: Maven Multi-Module
 
 ### Module Dependencies
@@ -140,45 +178,32 @@ The application will start on http://localhost:8080
 
 ### Core Module
 
-1. **ClientType** (enum) - HUMAN_BROWSER, AI_AGENT, BOT_SCRAPER, SEARCH_ENGINE, SECURITY_SCANNER, UNKNOWN  
-2. **Severity** (enum) - LOW, MEDIUM, HIGH, CRITICAL  
-3. **RawRequestSignals** - Raw HTTP request data  
-4. **ClassificationResult** - Output of threat classification  
-5. **ThreatClassifier** (interface) - Classification contract  
+1. **ClientType** (enum) - HUMAN_BROWSER, AI_AGENT, BOT_SCRAPER, SEARCH_ENGINE, SECURITY_SCANNER, UNKNOWN
+2. **Severity** (enum) - LOW, MEDIUM, HIGH, CRITICAL
+3. **RawRequestSignals** - Raw HTTP request data
+4. **ClassificationResult** - Output of threat classification
+5. **ThreatClassifier** (interface) - Classification contract
 
 ### Collector Module
 
-1. **SessionStore** - In-memory session tracking  
-2. **HttpServletSignalExtractor** - Extracts signals from servlet requests  
-3. **SignalCollectorFilter** - Servlet filter intercepting all requests  
+1. **SessionStore** - In-memory session tracking
+2. **HttpServletSignalExtractor** - Extracts behavioral signals from servlet requests
+3. **SignalCollectorFilter** - Servlet filter intercepting all requests
 4. **IsolationForestAnomalyDetector** - Unsupervised anomaly detection using Weka
 
 ### Analyzer Module
 
-1. **RuleBasedClassifier** - Heuristic threat detection  
-2. **EnsembleClassifier** - Aggregate classifier (Layer 3)
-3. **ThreatSession** - JPA entity for persisted threats  
-4. **ThreatLogService** - Service for logging threats to DB  
+1. **RuleBasedClassifier** - Heuristic threat detection
+2. **EnsembleClassifier** - Aggregate classifier combining multiple detection methods
+3. **ThreatSession** - JPA entity for persisted threats
+4. **ThreatLogService** - Service for logging threats to database
 
 ### Honeypot Module
 
-1. **AIHoneypotApplication** - Spring Boot main class  
-2. **CanaryController** - Trap endpoints  
+1. **AIHoneypotApplication** - Spring Boot main class
+2. **CanaryController** - Trap endpoint handlers
 3. **TrafficSimulator** - Realistic traffic and attack simulation
 4. **DatabaseSeeder** - Initial data seeding
-
----
-
-## Canary Trap Endpoints
-
-The following endpoints are traps that trigger immediate threat classification:
-
-- /admin, /wp-admin  
-- /.env  
-- /config  
-- /api/internal  
-- /.git  
-- /backup  
 
 ---
 
@@ -228,41 +253,13 @@ mvn test
 
 ## Detection Signals
 
-The system analyzes these behavioral signals:
+The system analyzes these behavioral signals to identify threats:
 
 - **Timing**: Request intervals, session duration, average timing between requests
-- **Headers**: User-Agent patterns, missing Accept headers, header complexity  
+- **Headers**: User-Agent patterns, missing Accept headers, header completeness score
 - **Navigation**: Direct endpoint access, missing referer, path depth
 - **Content**: Canary trap triggers, query complexity, suspicious characters ratio
 - **Network**: IP analysis, request rate
-
----
-
-## Threat Classification
-
-### Rule-Based Classifier
-
-Uses heuristics to detect:
-- Missing HTTP headers (Accept, Accept-Language)
-- Bot-like User-Agent strings
-- AI agent signatures (GPT, Claude, LangChain)
-- Security scanner patterns (Nikto, Burp)
-- Canary trap access
-- Suspiciously fast request patterns
-
-### Isolation Forest Classifier (Anomaly Detection)
-
-Unsupervised machine learning layer that:
-- Learns normal traffic patterns
-- Detects deviations (anomalies) without prior knowledge of attack types
-- Uses 12 behavioral features including timing entropy and URI structure
-
-### Ensemble Classifier
-
-Aggregates multiple detection layers:
-- Combines Layer 1 (Rules) and Layer 2 (ML)
-- Resolves discrepancies between classifiers
-- Implements theoretical mitigations for No Free Lunch theorem
 
 ---
 
@@ -291,10 +288,11 @@ Aggregates multiple detection layers:
 
 The following items are planned for future iterations:
 
-- **Frontend Dashboard**: Re-implementing the web-based or desktop monitoring interface
-- **Expanded canary endpoint coverage** beyond the current core list  
+- **Frontend Dashboard**: Web-based monitoring interface
+- **Expanded canary endpoint coverage** beyond the current core list
 - **Advanced behavioral signals** such as JavaScript-based fingerprinting
-- **Explainability module** for ML-based detections
+- **Explainability module** for machine learning detections
+- **Distributed deployment** support for large-scale honeypot networks
 
 ---
 
@@ -310,4 +308,4 @@ This project is licensed under the MIT License.
 
 ---
 
-**Note**: This is a honeypot system designed for research and security monitoring. Deploy responsibly and ensure compliance with relevant laws and regulations.
+**Note**: This is a honeypot system designed for security research and monitoring. Deploy responsibly and ensure compliance with relevant laws and regulations in your jurisdiction.

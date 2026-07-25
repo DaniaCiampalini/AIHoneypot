@@ -55,13 +55,13 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Dependency versions -->
-        <jackson.version>2.16.1</jackson.version>
+        <jackson.version>2.18.9</jackson.version>
         <weka.version>3.8.6</weka.version>
         <mapstruct.version>1.5.5.Final</mapstruct.version>
         <lombok.version>1.18.46</lombok.version>
         <springdoc.version>2.3.0</springdoc.version>
         <h2.version>2.2.224</h2.version>
-        <postgresql.version>42.7.1</postgresql.version>
+        <postgresql.version>42.7.12</postgresql.version>
         <mockito.version>5.8.0</mockito.version>
         <jacoco.version>0.8.11</jacoco.version>
         <javafx.version>21.0.1</javafx.version>

@@ -49,9 +49,6 @@ class DashboardServiceIntegrationTest {
     @Test
     @DisplayName("Should retrieve recent threats")
     void testGetRecentThreats() {
-        // Given
-        int limit = 10;
-
         // When
         // Call service to get recent threats
 
@@ -91,9 +88,6 @@ class DashboardServiceIntegrationTest {
     @Test
     @DisplayName("Should retrieve top attacking IPs")
     void testGetTopAttackingIPs() {
-        // Given
-        int limit = 5;
-
         // When
         // Call service method
 
@@ -118,9 +112,6 @@ class DashboardServiceIntegrationTest {
     @Test
     @DisplayName("Should filter threats by time range")
     void testTimeRangeFiltering() {
-        // Given
-        int hours = 24;
-
         // When
         // Call service with time filter
 

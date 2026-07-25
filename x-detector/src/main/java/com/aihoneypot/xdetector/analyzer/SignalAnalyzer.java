@@ -1,6 +1,5 @@
 package com.aihoneypot.xdetector.analyzer;
 
-import com.aihoneypot.xdetector.model.BotScore;
 import com.aihoneypot.xdetector.model.XAccount;
 
 import java.util.Map;

@@ -1,15 +1,14 @@
 package com.aihoneypot.gui.service;
 
-import com.aihoneypot.core.model.ClientType;
-import com.aihoneypot.core.model.Severity;
 import com.aihoneypot.dashboard.dto.ThreatSessionDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * REST client service to communicate with AIHoneypot backend API.
@@ -21,9 +20,10 @@ public class DashboardApiService {
     private final String baseUrl;
 
     public DashboardApiService(String baseUrl) {
-        this.baseUrl = baseUrl;
+        String nonNullBaseUrl = Objects.requireNonNull(baseUrl, "baseUrl");
+        this.baseUrl = nonNullBaseUrl;
         this.webClient = WebClient.builder()
-                .baseUrl(baseUrl)
+            .baseUrl(nonNullBaseUrl)
                 .build();
         this.objectMapper = new ObjectMapper();
         this.objectMapper.registerModule(new JavaTimeModule());
@@ -34,11 +34,12 @@ public class DashboardApiService {
      */
     public Map<String, Object> getStatistics() {
         try {
-            return webClient.get()
+            String json = webClient.get()
                     .uri("/api/dashboard/stats")
                     .retrieve()
-                    .bodyToMono(Map.class)
+                .bodyToMono(String.class)
                     .block();
+            return parseMap(json, new TypeReference<Map<String, Object>>() {});
         } catch (Exception e) {
             System.err.println("Error fetching statistics: " + e.getMessage());
             return Map.of();
@@ -90,11 +91,12 @@ public class DashboardApiService {
      */
     public Map<String, Long> getThreatsByClientType() {
         try {
-            return webClient.get()
+            String json = webClient.get()
                     .uri("/api/dashboard/stats/by-client-type")
                     .retrieve()
-                    .bodyToMono(Map.class)
+                .bodyToMono(String.class)
                     .block();
+            return parseMap(json, new TypeReference<Map<String, Long>>() {});
         } catch (Exception e) {
             System.err.println("Error fetching client type stats: " + e.getMessage());
             return Map.of();
@@ -106,11 +108,12 @@ public class DashboardApiService {
      */
     public Map<String, Long> getThreatsBySeverity() {
         try {
-            return webClient.get()
+            String json = webClient.get()
                     .uri("/api/dashboard/stats/by-severity")
                     .retrieve()
-                    .bodyToMono(Map.class)
+                .bodyToMono(String.class)
                     .block();
+            return parseMap(json, new TypeReference<Map<String, Long>>() {});
         } catch (Exception e) {
             System.err.println("Error fetching severity stats: " + e.getMessage());
             return Map.of();
@@ -120,21 +123,18 @@ public class DashboardApiService {
     /**
      * Get top attacking IPs.
      */
-    @SuppressWarnings("unchecked")
     public List<Map<String, Object>> getTopAttackingIPs(int limit) {
         try {
-            List<Map> rawList = webClient.get()
+            String json = webClient.get()
                     .uri(uriBuilder -> uriBuilder
                             .path("/api/dashboard/stats/top-ips")
                             .queryParam("limit", limit)
                             .build())
                     .retrieve()
-                    .bodyToFlux(Map.class)
-                    .collectList()
+                .bodyToMono(String.class)
                     .block();
 
-            // Convert to properly typed list
-            return (List<Map<String, Object>>) (List<?>) rawList;
+            return parseList(json, new TypeReference<List<Map<String, Object>>>() {});
         } catch (Exception e) {
             System.err.println("Error fetching top IPs: " + e.getMessage());
             return List.of();
@@ -146,11 +146,12 @@ public class DashboardApiService {
      */
     public boolean isHealthy() {
         try {
-            Map<String, String> response = webClient.get()
+            String json = webClient.get()
                     .uri("/api/dashboard/health")
                     .retrieve()
-                    .bodyToMono(Map.class)
+                    .bodyToMono(String.class)
                     .block();
+            Map<String, String> response = parseMap(json, new TypeReference<Map<String, String>>() {});
             return response != null && "UP".equals(response.get("status"));
         } catch (Exception e) {
             return false;
@@ -159,6 +160,20 @@ public class DashboardApiService {
 
     public String getBaseUrl() {
         return baseUrl;
+    }
+
+    private <T> T parseMap(String json, TypeReference<T> typeReference) throws Exception {
+        if (json == null || json.isBlank()) {
+            return null;
+        }
+        return objectMapper.readValue(json, typeReference);
+    }
+
+    private <T> T parseList(String json, TypeReference<T> typeReference) throws Exception {
+        if (json == null || json.isBlank()) {
+            return null;
+        }
+        return objectMapper.readValue(json, typeReference);
     }
 }
 

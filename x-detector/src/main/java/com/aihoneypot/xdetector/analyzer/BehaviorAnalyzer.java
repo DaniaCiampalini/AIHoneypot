@@ -32,9 +32,21 @@ public class BehaviorAnalyzer implements SignalAnalyzer {
         int signals = 0;
 
         List<XTweet> tweets = account.getRecentTweets();
+        List<XTweet> safeTweets = new java.util.ArrayList<>();
+        for (XTweet tweet : tweets) {
+            if (tweet != null) {
+                safeTweets.add(tweet);
+            }
+        }
+        tweets = safeTweets;
 
         // Signal 1: Only retweets, no original content
-        long retweetCount = tweets.stream().filter(XTweet::isRetweet).count();
+        long retweetCount = 0;
+        for (XTweet tweet : tweets) {
+            if (tweet.isRetweet()) {
+                retweetCount++;
+            }
+        }
         double retweetRatio = (double) retweetCount / tweets.size();
         if (retweetRatio > 0.9) {
             score += 0.30; // Mostly retweets
@@ -44,35 +56,55 @@ public class BehaviorAnalyzer implements SignalAnalyzer {
         signals++;
 
         // Signal 2: No replies (no engagement)
-        long replyCount = tweets.stream().filter(XTweet::isReply).count();
+        long replyCount = 0;
+        for (XTweet tweet : tweets) {
+            if (tweet.isReply()) {
+                replyCount++;
+            }
+        }
         if (replyCount == 0 && tweets.size() > 10) {
             score += 0.25;
             signals++;
         }
 
         // Signal 3: No media attachments
-        long mediaCount = tweets.stream().filter(XTweet::isHasMedia).count();
+        long mediaCount = 0;
+        for (XTweet tweet : tweets) {
+            if (tweet.isHasMedia()) {
+                mediaCount++;
+            }
+        }
         if (mediaCount == 0 && tweets.size() > 20) {
             score += 0.15; // Bots often don't use media
             signals++;
         }
 
         // Signal 4: Suspicious client name
-        boolean hasSuspiciousClient = tweets.stream()
-            .anyMatch(tweet -> {
-                String source = tweet.getSource();
-                return source != null && API_CLIENT.matcher(source).matches();
-            });
+        boolean hasSuspiciousClient = false;
+        for (XTweet tweet : tweets) {
+            String source = tweet.getSource();
+            if (source != null && API_CLIENT.matcher(source).matches()) {
+                hasSuspiciousClient = true;
+                break;
+            }
+        }
         if (hasSuspiciousClient) {
             score += 0.35;
             signals++;
         }
 
         // Signal 5: All tweets same language (no variation)
-        boolean allSameLanguage = tweets.stream()
-            .map(XTweet::getLanguage)
-            .distinct()
-            .count() == 1;
+        boolean allSameLanguage = true;
+        String firstLanguage = null;
+        for (XTweet tweet : tweets) {
+            String language = tweet.getLanguage();
+            if (firstLanguage == null) {
+                firstLanguage = language;
+            } else if (!java.util.Objects.equals(firstLanguage, language)) {
+                allSameLanguage = false;
+                break;
+            }
+        }
         if (allSameLanguage && tweets.size() > 10) {
             score += 0.10; // Slight bot indicator
             signals++;
@@ -100,23 +132,43 @@ public class BehaviorAnalyzer implements SignalAnalyzer {
         }
 
         List<XTweet> tweets = account.getRecentTweets();
+        List<XTweet> safeTweets = new java.util.ArrayList<>();
+        for (XTweet tweet : tweets) {
+            if (tweet != null) {
+                safeTweets.add(tweet);
+            }
+        }
+        tweets = safeTweets;
 
-        long retweetCount = tweets.stream().filter(XTweet::isRetweet).count();
-        long replyCount = tweets.stream().filter(XTweet::isReply).count();
-        long mediaCount = tweets.stream().filter(XTweet::isHasMedia).count();
+        long retweetCount = 0;
+        long replyCount = 0;
+        long mediaCount = 0;
+        for (XTweet tweet : tweets) {
+            if (tweet.isRetweet()) {
+                retweetCount++;
+            }
+            if (tweet.isReply()) {
+                replyCount++;
+            }
+            if (tweet.isHasMedia()) {
+                mediaCount++;
+            }
+        }
 
         details.put("retweet_ratio", (double) retweetCount / tweets.size());
         details.put("reply_count", replyCount);
         details.put("media_count", mediaCount);
-        details.put("has_suspicious_client", tweets.stream()
-            .anyMatch(tweet -> {
-                String source = tweet.getSource();
-                return source != null && API_CLIENT.matcher(source).matches();
-            }));
-        details.put("language_diversity", tweets.stream()
-            .map(XTweet::getLanguage)
-            .distinct()
-            .count());
+        boolean hasSuspiciousClient = false;
+        java.util.Set<String> languages = new java.util.HashSet<>();
+        for (XTweet tweet : tweets) {
+            String source = tweet.getSource();
+            if (source != null && API_CLIENT.matcher(source).matches()) {
+                hasSuspiciousClient = true;
+            }
+            languages.add(tweet.getLanguage());
+        }
+        details.put("has_suspicious_client", hasSuspiciousClient);
+        details.put("language_diversity", languages.size());
 
         return details;
     }

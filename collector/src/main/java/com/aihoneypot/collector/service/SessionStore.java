@@ -113,12 +113,10 @@ public class SessionStore {
      * Internal class to track session data.
      */
     private static class SessionData {
-        private final String sessionId;
         private final List<RawRequestSignals> requests;
         private Instant lastAccessTime;
 
         SessionData(String sessionId) {
-            this.sessionId = sessionId;
             this.requests = new ArrayList<>();
             this.lastAccessTime = Instant.now();
         }

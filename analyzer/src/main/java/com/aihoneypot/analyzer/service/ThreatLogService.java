@@ -39,22 +39,23 @@ public class ThreatLogService {
             return;
         }
 
-        ThreatSession entity = ThreatSession.builder()
-            .sessionId(result.getSessionId())
-            .ipAddress(signals.getIpAddress())
-            .timestamp(result.getTimestamp())
-            .clientType(result.getClientType())
-            .confidence(result.getConfidence())
-            .severity(result.getSeverity())
-            .isThreat(result.isThreat())
-            .anomalyScore(result.getAnomalyScore())
-            .userAgent(signals.getUserAgent())
-            .firstUri(signals.getUri())
-            .requestCount(1)
-            .explanation(result.getExplanation())
-            .classifierName(result.getClassifierName())
-            .canaryTrapTriggered(signals.isCanaryTrapTriggered())
-            .build();
+        ThreatSession entity = new ThreatSession(
+            null,
+            result.getSessionId(),
+            signals.getIpAddress(),
+            result.getTimestamp(),
+            result.getClientType(),
+            result.getConfidence(),
+            result.getSeverity(),
+            result.isThreat(),
+            result.getAnomalyScore(),
+            signals.getUserAgent(),
+            signals.getUri(),
+            1,
+            result.getExplanation(),
+            result.getClassifierName(),
+            signals.isCanaryTrapTriggered()
+        );
 
         repository.save(entity);
 

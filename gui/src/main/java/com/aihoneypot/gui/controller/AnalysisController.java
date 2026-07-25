@@ -1,6 +1,5 @@
 package com.aihoneypot.gui.controller;
 
-import com.aihoneypot.gui.service.DashboardApiService;
 import com.aihoneypot.gui.service.SecurityAnalysisService;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -24,7 +23,6 @@ public class AnalysisController {
     @FXML private Label resultLabel;
     @FXML private VBox resultPane;
 
-    private DashboardApiService apiService;
     private SecurityAnalysisService securityService;
 
     @FXML
@@ -49,10 +47,6 @@ public class AnalysisController {
         // Update placeholder based on selection
         analysisTypeCombo.setOnAction(e -> updatePlaceholder());
         updatePlaceholder();
-    }
-
-    public void setApiService(DashboardApiService apiService) {
-        this.apiService = apiService;
     }
 
     private void updatePlaceholder() {

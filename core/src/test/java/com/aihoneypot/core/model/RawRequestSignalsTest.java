@@ -101,7 +101,7 @@ class RawRequestSignalsTest {
 
         // When & Then
         for (String agent : suspiciousAgents) {
-            RawRequestSignals signals = builder.userAgent(agent).build();
+            builder.userAgent(agent).build();
 
             // Business logic: check if user agent contains bot/crawler indicators
             boolean isSuspicious = agent.toLowerCase().matches(".*(bot|crawler|spider|scraper|curl|python|nikto|sqlmap).*");
@@ -145,7 +145,7 @@ class RawRequestSignalsTest {
 
         // When & Then
         for (String path : canaryPaths) {
-            RawRequestSignals signals = builder.uri(path).build();
+            builder.uri(path).build();
 
             boolean isCanary = path.matches(".*(admin|wp-admin|\\.env|backup|\\.git|config|phpmyadmin).*");
             assertTrue(isCanary, "Should detect canary trap: " + path);
@@ -178,13 +178,12 @@ class RawRequestSignalsTest {
 
         // When & Then - Valid methods
         for (String httpMethod : validMethods) {
-            RawRequestSignals signals = builder.method(httpMethod).build();
-            assertNotNull(signals.getMethod());
+            assertNotNull(builder.method(httpMethod).build().getMethod());
         }
 
         // Unusual methods (might indicate probing)
         for (String httpMethod : unusualMethods) {
-            RawRequestSignals signals = builder.method(httpMethod).build();
+            assertNotNull(builder.method(httpMethod).build().getMethod());
             boolean isUnusual = !httpMethod.matches("GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS");
             assertTrue(isUnusual, "Should flag unusual method: " + httpMethod);
         }
@@ -222,7 +221,7 @@ class RawRequestSignalsTest {
             Map<String, String> params = new HashMap<>();
             params.put("input", pattern);
 
-            RawRequestSignals signals = builder.queryParams(params).build();
+            builder.queryParams(params).build();
 
             boolean isSQLi = pattern.matches(".*('|--|UNION|DROP|SELECT|INSERT|DELETE|UPDATE|;).*");
             assertTrue(isSQLi, "Should detect SQL injection: " + pattern);

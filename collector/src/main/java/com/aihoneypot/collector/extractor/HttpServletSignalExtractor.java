@@ -1,13 +1,11 @@
 package com.aihoneypot.collector.extractor;
 
-import com.aihoneypot.core.interfaces.BehaviorSignalExtractor;
 import com.aihoneypot.core.model.RawRequestSignals;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Extracts raw behavioral signals from HttpServletRequest objects.
@@ -99,11 +97,11 @@ public class HttpServletSignalExtractor {
      * Extract query parameters.
      */
     private Map<String, String> extractQueryParams(HttpServletRequest request) {
-        return request.getParameterMap().entrySet().stream()
-            .collect(Collectors.toMap(
-                Map.Entry::getKey,
-                e -> e.getValue().length > 0 ? e.getValue()[0] : ""
-            ));
+        Map<String, String> queryParams = new HashMap<>();
+        request.getParameterMap().forEach((key, values) ->
+            queryParams.put(key, values != null && values.length > 0 ? values[0] : "")
+        );
+        return queryParams;
     }
 
     /**

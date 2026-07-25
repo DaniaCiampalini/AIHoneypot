@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Analyzes posting frequency and timing patterns.
@@ -71,9 +70,13 @@ public class TemporalAnalyzer implements SignalAnalyzer {
     private double calculateTweetsPerDay(List<XTweet> tweets) {
         if (tweets.size() < 2) return 0.0;
 
-        List<XTweet> sorted = tweets.stream()
-            .sorted(Comparator.comparing(XTweet::getCreatedAt))
-            .collect(Collectors.toList());
+        List<XTweet> sorted = new ArrayList<>();
+        for (XTweet tweet : tweets) {
+            if (tweet != null && tweet.getCreatedAt() != null) {
+                sorted.add(tweet);
+            }
+        }
+        sorted.sort((left, right) -> left.getCreatedAt().compareTo(right.getCreatedAt()));
 
         Instant oldest = sorted.get(0).getCreatedAt();
         Instant newest = sorted.get(sorted.size() - 1).getCreatedAt();
@@ -87,9 +90,13 @@ public class TemporalAnalyzer implements SignalAnalyzer {
     private double calculateIntervalVariance(List<XTweet> tweets) {
         if (tweets.size() < 3) return 1.0;
 
-        List<XTweet> sorted = tweets.stream()
-            .sorted(Comparator.comparing(XTweet::getCreatedAt))
-            .collect(Collectors.toList());
+        List<XTweet> sorted = new ArrayList<>();
+        for (XTweet tweet : tweets) {
+            if (tweet != null && tweet.getCreatedAt() != null) {
+                sorted.add(tweet);
+            }
+        }
+        sorted.sort((left, right) -> left.getCreatedAt().compareTo(right.getCreatedAt()));
 
         List<Long> intervals = new ArrayList<>();
         for (int i = 1; i < sorted.size(); i++) {
@@ -100,7 +107,11 @@ public class TemporalAnalyzer implements SignalAnalyzer {
             intervals.add(interval);
         }
 
-        double[] values = intervals.stream().mapToDouble(Long::doubleValue).toArray();
+        double[] values = new double[intervals.size()];
+        for (int i = 0; i < intervals.size(); i++) {
+            Long value = intervals.get(i);
+            values[i] = value != null ? value.doubleValue() : 0.0;
+        }
         StandardDeviation sd = new StandardDeviation();
         double stdDev = sd.evaluate(values);
         double mean = Arrays.stream(values).average().orElse(1.0);
@@ -112,9 +123,13 @@ public class TemporalAnalyzer implements SignalAnalyzer {
     private boolean hasBurstPosting(List<XTweet> tweets) {
         if (tweets.size() < 5) return false;
 
-        List<XTweet> sorted = tweets.stream()
-            .sorted(Comparator.comparing(XTweet::getCreatedAt))
-            .collect(Collectors.toList());
+        List<XTweet> sorted = new ArrayList<>();
+        for (XTweet tweet : tweets) {
+            if (tweet != null && tweet.getCreatedAt() != null) {
+                sorted.add(tweet);
+            }
+        }
+        sorted.sort((left, right) -> left.getCreatedAt().compareTo(right.getCreatedAt()));
 
         // Check for 5+ tweets within 10 minutes
         for (int i = 0; i <= sorted.size() - 5; i++) {
@@ -131,12 +146,16 @@ public class TemporalAnalyzer implements SignalAnalyzer {
     private double calculateNightPostingRatio(List<XTweet> tweets) {
         if (tweets.isEmpty()) return 0.0;
 
-        long nightPosts = tweets.stream()
-            .filter(tweet -> {
-                int hour = tweet.getCreatedAt().atZone(java.time.ZoneId.of("UTC")).getHour();
-                return hour >= 1 && hour <= 5; // 1 AM to 5 AM UTC
-            })
-            .count();
+        long nightPosts = 0;
+        for (XTweet tweet : tweets) {
+            if (tweet == null || tweet.getCreatedAt() == null) {
+                continue;
+            }
+            int hour = tweet.getCreatedAt().atZone(java.time.ZoneId.of("UTC")).getHour();
+            if (hour >= 1 && hour <= 5) {
+                nightPosts++;
+            }
+        }
 
         return (double) nightPosts / tweets.size();
     }

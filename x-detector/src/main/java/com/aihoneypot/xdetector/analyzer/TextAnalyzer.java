@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * Analyzes text content for AI-generated patterns.
@@ -92,17 +91,19 @@ public class TextAnalyzer implements SignalAnalyzer {
     }
 
     private double calculateAIPatternRatio(List<XTweet> tweets) {
-        long matchCount = tweets.stream()
-            .filter(tweet -> {
-                String text = tweet.getText();
-                for (Pattern pattern : AI_PATTERNS) {
-                    if (pattern.matcher(text).find()) {
-                        return true;
-                    }
+        long matchCount = 0;
+        for (XTweet tweet : tweets) {
+            if (tweet == null || tweet.getText() == null) {
+                continue;
+            }
+            String text = tweet.getText();
+            for (Pattern pattern : AI_PATTERNS) {
+                if (pattern.matcher(text).find()) {
+                    matchCount++;
+                    break;
                 }
-                return false;
-            })
-            .count();
+            }
+        }
 
         return (double) matchCount / tweets.size();
     }
@@ -110,9 +111,12 @@ public class TextAnalyzer implements SignalAnalyzer {
     private double calculateTextSimilarity(List<XTweet> tweets) {
         if (tweets.size() < 2) return 0.0;
 
-        List<String> texts = tweets.stream()
-            .map(XTweet::getText)
-            .collect(Collectors.toList());
+        List<String> texts = new ArrayList<>();
+        for (XTweet tweet : tweets) {
+            if (tweet != null && tweet.getText() != null) {
+                texts.add(tweet.getText());
+            }
+        }
 
         LevenshteinDistance levenshtein = new LevenshteinDistance();
         double totalSimilarity = 0.0;
@@ -138,13 +142,18 @@ public class TextAnalyzer implements SignalAnalyzer {
     }
 
     private boolean usesAutomationClient(List<XTweet> tweets) {
-        return tweets.stream()
-            .anyMatch(tweet -> {
-                String source = tweet.getSource();
-                if (source == null) return false;
-                return AUTOMATION_CLIENTS.stream()
-                    .anyMatch(client -> source.toLowerCase().contains(client.toLowerCase()));
-            });
+        for (XTweet tweet : tweets) {
+            if (tweet == null || tweet.getSource() == null) {
+                continue;
+            }
+            String source = tweet.getSource();
+            for (String client : AUTOMATION_CLIENTS) {
+                if (source.toLowerCase().contains(client.toLowerCase())) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private double calculateTypeTokenRatio(List<XTweet> tweets) {
@@ -152,6 +161,9 @@ public class TextAnalyzer implements SignalAnalyzer {
         int totalWords = 0;
 
         for (XTweet tweet : tweets) {
+            if (tweet == null || tweet.getText() == null) {
+                continue;
+            }
             String[] words = tweet.getText().toLowerCase()
                 .replaceAll("[^a-z0-9\\s]", "")
                 .split("\\s+");
@@ -185,6 +197,9 @@ public class TextAnalyzer implements SignalAnalyzer {
         };
 
         for (XTweet tweet : tweets) {
+            if (tweet == null || tweet.getText() == null) {
+                continue;
+            }
             String text = tweet.getText();
 
             for (Pattern p : formalPatterns) {

@@ -2,14 +2,12 @@ package com.aihoneypot.gui.service;
 
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
+import java.net.URI;
 import java.net.URL;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.*;
 import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 
 /**
  * Advanced security analysis service with multiple checks.
@@ -28,7 +26,7 @@ public class SecurityAnalysisService {
         double securityScore = 100.0;
 
         try {
-            URL url = new URL(urlString);
+            URL url = URI.create(urlString).toURL();
 
             // 1. SSL/TLS Check
             Map<String, Object> sslCheck = checkSSL(url);
@@ -149,12 +147,12 @@ public class SecurityAnalysisService {
                 boolean expired = notAfter.before(now);
 
                 result.put("valid", !expired);
-                result.put("issuer", cert.getIssuerDN().getName());
+                result.put("issuer", cert.getIssuerX500Principal().getName());
                 result.put("expires", notAfter.toString());
                 result.put("expired", expired);
 
                 // Check if self-signed
-                boolean selfSigned = cert.getIssuerDN().equals(cert.getSubjectDN());
+                boolean selfSigned = cert.getIssuerX500Principal().equals(cert.getSubjectX500Principal());
                 result.put("self_signed", selfSigned);
             }
 
@@ -288,7 +286,7 @@ public class SecurityAnalysisService {
             int maxRedirects = 10;
 
             while (redirectCount < maxRedirects) {
-                conn = (HttpURLConnection) new URL(currentUrl).openConnection();
+                conn = (HttpURLConnection) URI.create(currentUrl).toURL().openConnection();
                 conn.setInstanceFollowRedirects(false);
                 conn.connect();
 
